@@ -16,8 +16,10 @@ Command:
   -L/Applications/microchip/xc16/v1.35/bin/bin/../../support/dsPIC33C/gld \
   -L/Applications/microchip/xc16/v1.35/bin/bin/../../support/dsPIC33E/gld \
   -L/Applications/microchip/xc16/v1.35/bin/bin/../../support/dsPIC33F/gld \
-  build/default/production/_ext/1472/init_port.o \
-  build/default/production/_ext/1472/ledtest.o \
+  build/default/production/_ext/1360937237/drive_test.o \
+  ../library/motor_led/dist/default/production/motor_led.a \
+  ../library/I2C/dist/default/production/I2C.a \
+  ../library/uart/dist/default/production/uart.a \
   --defsym=__MPLAB_BUILD=1 \
   -Tp30F6014A.gld.00 \
   --heap=512 \
@@ -44,16 +46,66 @@ Command:
   --library=c-elf \
   -end-group \
 
-
-Optional library libp30F6014A.a not found
 Archive member included because of file (symbol)
 
+../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+                              build/default/production/_ext/1360937237/drive_test.o (_e_init_motors)
+../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
+                              ../library/motor_led/dist/default/production/motor_led.a(e_motors.o) (_e_init_port)
+../library/motor_led/dist/default/production/motor_led.a(e_lsm330.o)
+                              ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o) (_initAccAndGyro)
+../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+                              ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o) (_e_i2c_reset)
+../library/I2C/dist/default/production/I2C.a(e_I2C_protocol.o)
+                              ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o) (_e_i2cp_init)
+
+Optional library libp30F6014A.a not found
 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libpic30-elf.a(crt0_standard.o)
                               (__resetPRI)
 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libpic30-elf.a(data_init_standard.o)
                               /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libpic30-elf.a(crt0_standard.o) (__data_init_standard)
 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libpic30-elf.a(crt_start_mode_normal.eo)
                               (__crt_start_mode_normal)
+/Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(divsf3.eo)
+                              ../library/motor_led/dist/default/production/motor_led.a(e_motors.o) (___divsf3)
+/Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(fixunssfsi.eo)
+                              ../library/motor_led/dist/default/production/motor_led.a(e_motors.o) (___fixunssfsi)
+/Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(floatsisf.eo)
+                              ../library/motor_led/dist/default/production/motor_led.a(e_motors.o) (___floatsisf)
+/Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(fpack.eo)
+                              /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(divsf3.eo) (__fpack)
+/Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(funpack.eo)
+                              /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(fixunssfsi.eo) (__funpack)
+/Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(funpack2.eo)
+                              /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(divsf3.eo) (__funpack2)
+/Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(futil.eo)
+                              /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(divsf3.eo) (__fPropagateNaN)
+/Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(mulsf3.eo)
+                              ../library/motor_led/dist/default/production/motor_led.a(e_lsm330.o) (___mulsf3)
+/Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(floatdisf.eo)
+                              /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(floatsisf.eo) (___floatdisf)
+/Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(floatundisf.eo)
+                              /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(floatdisf.eo) (___floatundisf)
+
+
+Selected CodeGuard Options:
+  FGS:GWRP:GWRP_OFF
+  FGS:GCP:GSS_OFF
+
+CodeGuard FLASH Memory:
+  boot    (none)
+  secure  (none)
+  general 0x100 to 0x17ffe
+
+CodeGuard RAM Memory:
+  general 0x800 to 0x27ff
+  secure  (none)
+  boot    (none)
+
+CodeGuard EEPROM Memory:
+  general 0x7ff000 to 0x7fffff
+  secure  (none)
+  boot    (none)
 
 
 xc16-ld 1.35 (A)
@@ -62,30 +114,51 @@ xc16-ld 1.35 (A)
 
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
-.text                        0x100                0xce           0x135  (309)
-.text                        0x1ce                0xce           0x135  (309)
+.text                        0x100               0x448           0x66c  (1644)
+.text                        0x548               0x8d0           0xd38  (3384)
+.dinit                       0xe18                0x20            0x30  (48)
 
-                 Total "program" memory used (bytes):          0x26a  (618) <1%
+                 Total "program" memory used (bytes):         0x13d4  (5076) 3%
 
 
 "data" Memory  [Origin = 0x800, Length = 0x2000]
 
 section                    address      alignment gaps    total length  (dec)
 -------                    -------      --------------    -------------------
-.heap                        0x800                   0           0x200  (512)
+.nbss                        0x800                   0            0x16  (22)
+.bss                         0x816                   0             0x6  (6)
+.heap                        0x81c                   0           0x200  (512)
 
-                 Total "data" memory used (bytes):          0x200  (512) 6%
+                 Total "data" memory used (bytes):          0x21c  (540) 6%
 
 
 Dynamic Memory Usage
 
 region                     address                      maximum length  (dec)
 ------                     -------                      ---------------------
-heap                         0x800                               0x200  (512)
-stack                        0xa00                              0x1e00  (7680)
+heap                         0x81c                               0x200  (512)
+stack                        0xa1c                              0x1de4  (7652)
 
-                 Maximum dynamic memory (bytes):         0x2000  (8192)
+                 Maximum dynamic memory (bytes):         0x1fe4  (8164)
 
+
+External Symbols in Data Memory (by address):
+
+                    0x080c                  _gyroOffsetX
+                    0x080e                  _gyroOffsetY
+                    0x0810                  _gyroOffsetZ
+                    0x0812                  _isPresentFlag
+                    0x0814                  _e_i2c_mode
+                    0x0816                  _e_interrupts
+
+External Symbols in Data Memory (by name):
+
+                    0x0814                  _e_i2c_mode
+                    0x0816                  _e_interrupts
+                    0x080c                  _gyroOffsetX
+                    0x080e                  _gyroOffsetY
+                    0x0810                  _gyroOffsetZ
+                    0x0812                  _isPresentFlag
 
 External Symbols in Program Memory (by address):
 
@@ -93,19 +166,145 @@ External Symbols in Program Memory (by address):
                   0x00013c                  __psv_init
                   0x000152                  __data_init
                   0x000152                  __data_init_standard
-                  0x0001c8                  __DefaultInterrupt
-                  0x0001ce                  _InitPort
-                  0x00025a                  _main
+                  0x0001c8                  __T5Interrupt
+                  0x000254                  __T4Interrupt
+                  0x0002e0                  __MI2CInterrupt
+                  0x0002f6                  __DefaultInterrupt
+                  0x0002fc                  ___divsf3
+                  0x000380                  ___fixunssfsi
+                  0x0003b6                  ___floatsisf
+                  0x0003bc                  __fpack
+                  0x000408                  __funpack
+                  0x000432                  __funpack2
+                  0x000442                  __fPropagateNaN
+                  0x000454                  __fbopExit
+                  0x00045c                  __fbopReturnNaN
+                  0x000462                  ___mulsf3
+                  0x0004ca                  ___floatdisf
+                  0x0004ea                  ___floatundisf
+                  0x000548                  _writeReg
+                  0x000560                  _readReg
+                  0x000578                  _readRegMulti
+                  0x000600                  _initAccAndGyro
+                  0x000632                  _getAllAxesAccRaw
+                  0x000648                  _getAllAxesAcc
+                  0x000692                  _getXAxisAcc
+                  0x0006b4                  _getYAxisAcc
+                  0x0006d6                  _getZAxisAcc
+                  0x0006f8                  _getAllAxesGyroRaw
+                  0x00070e                  _getAllAxesGyro
+                  0x000764                  _getXAxisGyro
+                  0x00078a                  _getYAxisGyro
+                  0x0007b0                  _getZAxisGyro
+                  0x0007d6                  _getTemperature
+                  0x0007e2                  _calibrateGyroscope
+                  0x000868                  _rawToDps
+                  0x00087c                  _rawToDpms
+                  0x000890                  _idle_i2c
+                  0x0008c2                  _e_i2c_init
+                  0x0008fc                  _e_i2c_deinit
+                  0x00090e                  _e_i2c_reset
+                  0x000958                  _e_i2c_enable
+                  0x000964                  _e_i2c_disable
+                  0x000970                  _e_i2c_start
+                  0x0009ac                  _e_i2c_restart
+                  0x0009e8                  _e_i2c_stop
+                  0x000a18                  _e_i2c_ack
+                  0x000a76                  _e_i2c_nack
+                  0x000ad4                  _e_i2c_read
+                  0x000b6a                  _e_i2c_write
+                  0x000ba0                  _e_init_motors
+                  0x000ba8                  _e_set_speed_left
+                  0x000bf2                  _e_set_speed_right
+                  0x000c3c                  _e_get_steps_left
+                  0x000c44                  _e_set_steps_left
+                  0x000c54                  _e_get_steps_right
+                  0x000c5c                  _e_set_steps_right
+                  0x000c6c                  _testAccGyroPresence
+                  0x000c92                  _e_init_port
+                  0x000d26                  _isEpuckVersion1_3
+                  0x000d2e                  _e_i2cp_init
+                  0x000d36                  _e_i2cp_deinit
+                  0x000d3e                  _e_i2cp_enable
+                  0x000d46                  _e_i2cp_disable
+                  0x000d4e                  _e_i2cp_read
+                  0x000d9c                  _e_i2cp_write
+                  0x000de0                  _wait
+                  0x000dfa                  _main
+                  0xf8000a                  __FGS.sec
 
 External Symbols in Program Memory (by name):
 
-                  0x0001ce                  _InitPort
-                  0x0001c8                  __DefaultInterrupt
+                  0x0002f6                  __DefaultInterrupt
+                  0xf8000a                  __FGS.sec
+                  0x0002e0                  __MI2CInterrupt
+                  0x000254                  __T4Interrupt
+                  0x0001c8                  __T5Interrupt
+                  0x0002fc                  ___divsf3
+                  0x000380                  ___fixunssfsi
+                  0x0004ca                  ___floatdisf
+                  0x0003b6                  ___floatsisf
+                  0x0004ea                  ___floatundisf
+                  0x000462                  ___mulsf3
                   0x000152                  __data_init
                   0x000152                  __data_init_standard
+                  0x000442                  __fPropagateNaN
+                  0x000454                  __fbopExit
+                  0x00045c                  __fbopReturnNaN
+                  0x0003bc                  __fpack
+                  0x000408                  __funpack
+                  0x000432                  __funpack2
                   0x00013c                  __psv_init
                   0x000100                  __resetPRI
-                  0x00025a                  _main
+                  0x0007e2                  _calibrateGyroscope
+                  0x000c3c                  _e_get_steps_left
+                  0x000c54                  _e_get_steps_right
+                  0x000a18                  _e_i2c_ack
+                  0x0008fc                  _e_i2c_deinit
+                  0x000964                  _e_i2c_disable
+                  0x000958                  _e_i2c_enable
+                  0x0008c2                  _e_i2c_init
+                  0x000a76                  _e_i2c_nack
+                  0x000ad4                  _e_i2c_read
+                  0x00090e                  _e_i2c_reset
+                  0x0009ac                  _e_i2c_restart
+                  0x000970                  _e_i2c_start
+                  0x0009e8                  _e_i2c_stop
+                  0x000b6a                  _e_i2c_write
+                  0x000d36                  _e_i2cp_deinit
+                  0x000d46                  _e_i2cp_disable
+                  0x000d3e                  _e_i2cp_enable
+                  0x000d2e                  _e_i2cp_init
+                  0x000d4e                  _e_i2cp_read
+                  0x000d9c                  _e_i2cp_write
+                  0x000ba0                  _e_init_motors
+                  0x000c92                  _e_init_port
+                  0x000ba8                  _e_set_speed_left
+                  0x000bf2                  _e_set_speed_right
+                  0x000c44                  _e_set_steps_left
+                  0x000c5c                  _e_set_steps_right
+                  0x000648                  _getAllAxesAcc
+                  0x000632                  _getAllAxesAccRaw
+                  0x00070e                  _getAllAxesGyro
+                  0x0006f8                  _getAllAxesGyroRaw
+                  0x0007d6                  _getTemperature
+                  0x000692                  _getXAxisAcc
+                  0x000764                  _getXAxisGyro
+                  0x0006b4                  _getYAxisAcc
+                  0x00078a                  _getYAxisGyro
+                  0x0006d6                  _getZAxisAcc
+                  0x0007b0                  _getZAxisGyro
+                  0x000890                  _idle_i2c
+                  0x000600                  _initAccAndGyro
+                  0x000d26                  _isEpuckVersion1_3
+                  0x000dfa                  _main
+                  0x00087c                  _rawToDpms
+                  0x000868                  _rawToDps
+                  0x000560                  _readReg
+                  0x000578                  _readRegMulti
+                  0x000c6c                  _testAccGyroPresence
+                  0x000de0                  _wait
+                  0x000548                  _writeReg
 
 Memory Configuration
 
@@ -132,8 +331,10 @@ FICD             0xf8000c           0x000002
 
 Linker script and memory map
 
-LOAD build/default/production/_ext/1472/init_port.o
-LOAD build/default/production/_ext/1472/ledtest.o
+LOAD build/default/production/_ext/1360937237/drive_test.o
+LOAD ../library/motor_led/dist/default/production/motor_led.a
+LOAD ../library/I2C/dist/default/production/I2C.a
+LOAD ../library/uart/dist/default/production/uart.a
                     0x0001                  __MPLAB_BUILD = 0x1
 LOAD p30F6014A
 LOAD /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libfx-elf.a
@@ -162,7 +363,7 @@ LOAD /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libfx-elf.a
                   0x000002          0x2 SHORT 0x0 ((ABSOLUTE (__reset) >> 0x10) & 0x7f)
                   0x000003          0x2 SHORT 0x0
 
-.text             0x000100         0xce
+.text             0x000100        0x448
  *(.init)
  .init            0x000100         0x4c /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libpic30-elf.a(crt0_standard.o)
                   0x000100                  __reset
@@ -174,16 +375,53 @@ LOAD /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libfx-elf.a
  *(.user_init)
  *(.handle)
  *(.isr*)
- .isr             0x0001c8          0x4 default_isr
-                  0x0001c8                  __DefaultInterrupt
+ .isr.text        0x0001c8        0x118 ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+                  0x0001c8                  __T5Interrupt
+                  0x000254                  __T4Interrupt
+ .isr.text        0x0002e0         0x16 ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+                  0x0002e0                  __MI2CInterrupt
+ .isr             0x0002f6          0x4 default_isr
+                  0x0002f6                  __DefaultInterrupt
  *(.libc)
  *(.libm)
  *(.libdsp)
  *(.lib*)
  .libpic30_crt_start_mode
-                  0x0001cc          0x2 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libpic30-elf.a(crt_start_mode_normal.eo)
-                  0x0001cc                  __crt_start_mode_normal
-                  0x0001cc                  __crt_start_mode
+                  0x0002fa          0x2 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libpic30-elf.a(crt_start_mode_normal.eo)
+                  0x0002fa                  __crt_start_mode_normal
+                  0x0002fa                  __crt_start_mode
+ .libm.divfs3     0x0002fc         0x84 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(divsf3.eo)
+                  0x0002fc                  ___divsf3
+ .libm.fixunssfsi
+                  0x000380         0x36 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(fixunssfsi.eo)
+                  0x000380                  ___fixunssfsi
+ .libm.floatsisf
+                  0x0003b6          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(floatsisf.eo)
+                  0x0003b6                  ___floatsisf
+ .libm.fpack      0x0003bc         0x4c /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(fpack.eo)
+                  0x0003bc                  __fpack
+ .libm.funpack    0x000408         0x2a /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(funpack.eo)
+                  0x000408                  __funpack
+ .libm.funpack2
+                  0x000432         0x10 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(funpack2.eo)
+                  0x000432                  __funpack2
+ .libm.fPropagateNaN
+                  0x000442         0x12 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(futil.eo)
+                  0x000442                  __fPropagateNaN
+ .libm.fbobExit
+                  0x000454          0x8 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(futil.eo)
+                  0x000454                  __fbopExit
+ .libm.fbopReturnNaN
+                  0x00045c          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(futil.eo)
+                  0x00045c                  __fbopReturnNaN
+ .libm.mulsf3     0x000462         0x68 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(mulsf3.eo)
+                  0x000462                  ___mulsf3
+ .libm.floatdisf
+                  0x0004ca         0x20 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(floatdisf.eo)
+                  0x0004ca                  ___floatdisf
+ .libm.floatundisf
+                  0x0004ea         0x5e /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(floatundisf.eo)
+                  0x0004ea                  ___floatundisf
 
 usercode
  *(usercode)
@@ -200,14 +438,17 @@ __FUID2
 __FUID3
  *(__FUID3.sec*)
 
-__FOSC
+__FOSC            0xf80000          0x2
  *(__FOSC.sec*)
+ __FOSC.sec       0xf80000          0x2 ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
 
-__FWDT
+__FWDT            0xf80002          0x2
  *(__FWDT.sec*)
+ __FWDT.sec       0xf80002          0x2 ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
 
-__FBORPOR
+__FBORPOR         0xf80004          0x2
  *(__FBORPOR.sec*)
+ __FBORPOR.sec    0xf80004          0x2 ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
 
 __FBS
  *(__FBS.sec*)
@@ -215,8 +456,10 @@ __FBS
 __FSS
  *(__FSS.sec*)
 
-__FGS
+__FGS             0xf8000a          0x2
  *(__FGS.sec*)
+ __FGS.sec        0xf8000a          0x2 /CW/_FGS†≈ê‘≈ê__FGS.sec
+                  0xf8000a                  __FGS.sec
 
 __FICD
  *(__FICD.sec*)
@@ -230,31 +473,50 @@ userdata
 .comment
  *(.comment)
 
-.debug_info       0x000000        0xf3c
+.debug_info       0x000000       0x2ff2
  *(.debug_info)
- .debug_info      0x000000        0xcc2 build/default/production/_ext/1472/init_port.o
- .debug_info      0x000cc2        0x27a build/default/production/_ext/1472/ledtest.o
+ .debug_info      0x000000        0x199 build/default/production/_ext/1360937237/drive_test.o
+ .debug_info      0x000199        0xaec ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+ .debug_info      0x000c85        0xd9c ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
+ .debug_info      0x001a21        0x69f ../library/motor_led/dist/default/production/motor_led.a(e_lsm330.o)
+ .debug_info      0x0020c0        0xcad ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+ .debug_info      0x002d6d        0x285 ../library/I2C/dist/default/production/I2C.a(e_I2C_protocol.o)
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000        0x127
+.debug_abbrev     0x000000        0x5fc
  *(.debug_abbrev)
- .debug_abbrev    0x000000         0x8a build/default/production/_ext/1472/init_port.o
- .debug_abbrev    0x00008a         0x9d build/default/production/_ext/1472/ledtest.o
+ .debug_abbrev    0x000000         0x6b build/default/production/_ext/1360937237/drive_test.o
+ .debug_abbrev    0x00006b        0x146 ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+ .debug_abbrev    0x0001b1         0xf8 ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
+ .debug_abbrev    0x0002a9        0x115 ../library/motor_led/dist/default/production/motor_led.a(e_lsm330.o)
+ .debug_abbrev    0x0003be        0x1ad ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+ .debug_abbrev    0x00056b         0x91 ../library/I2C/dist/default/production/I2C.a(e_I2C_protocol.o)
 
-.debug_line       0x000000        0x1f0
+.debug_line       0x000000        0x58e
  *(.debug_line)
- .debug_line      0x000000        0x118 build/default/production/_ext/1472/init_port.o
- .debug_line      0x000118         0xd8 build/default/production/_ext/1472/ledtest.o
+ .debug_line      0x000000         0x4d build/default/production/_ext/1360937237/drive_test.o
+ .debug_line      0x00004d        0x15b ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+ .debug_line      0x0001a8        0x128 ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
+ .debug_line      0x0002d0         0xd2 ../library/motor_led/dist/default/production/motor_led.a(e_lsm330.o)
+ .debug_line      0x0003a2        0x178 ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+ .debug_line      0x00051a         0x74 ../library/I2C/dist/default/production/I2C.a(e_I2C_protocol.o)
 
-.debug_frame      0x000000         0x60
+.debug_frame      0x000000        0x628
  *(.debug_frame)
- .debug_frame     0x000000         0x30 build/default/production/_ext/1472/init_port.o
- .debug_frame     0x000030         0x30 build/default/production/_ext/1472/ledtest.o
+ .debug_frame     0x000000         0x4c build/default/production/_ext/1360937237/drive_test.o
+ .debug_frame     0x00004c        0x110 ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+ .debug_frame     0x00015c         0x68 ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
+ .debug_frame     0x0001c4        0x20c ../library/motor_led/dist/default/production/motor_led.a(e_lsm330.o)
+ .debug_frame     0x0003d0        0x19c ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+ .debug_frame     0x00056c         0xbc ../library/I2C/dist/default/production/I2C.a(e_I2C_protocol.o)
 
-.debug_str        0x000000         0x68
+.debug_str        0x000000        0x12a
  *(.debug_str)
- .debug_str       0x000000         0x5f build/default/production/_ext/1472/init_port.o
- .debug_str       0x00005f          0x9 build/default/production/_ext/1472/ledtest.o
+ .debug_str       0x000000         0x51 ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+ .debug_str       0x000051         0x6d ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
+ .debug_str       0x0000be         0x24 ../library/motor_led/dist/default/production/motor_led.a(e_lsm330.o)
+ .debug_str       0x0000e2         0x3d ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+ .debug_str       0x00011f          0xb ../library/I2C/dist/default/production/I2C.a(e_I2C_protocol.o)
 
 .debug_loc
  *(.debug_loc)
@@ -263,22 +525,38 @@ userdata
  *(.debug_macinfo)
 
 .debug_pubnames
-                  0x000000         0x3a
+                  0x000000        0x47a
  *(.debug_pubnames)
  .debug_pubnames
-                  0x000000         0x1f build/default/production/_ext/1472/init_port.o
+                  0x000000         0x24 build/default/production/_ext/1360937237/drive_test.o
  .debug_pubnames
-                  0x00001f         0x1b build/default/production/_ext/1472/ledtest.o
+                  0x000024         0xc7 ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+ .debug_pubnames
+                  0x0000eb         0x8c ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
+ .debug_pubnames
+                  0x000177        0x177 ../library/motor_led/dist/default/production/motor_led.a(e_lsm330.o)
+ .debug_pubnames
+                  0x0002ee        0x112 ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+ .debug_pubnames
+                  0x000400         0x7a ../library/I2C/dist/default/production/I2C.a(e_I2C_protocol.o)
 
 .debug_ranges
  *(.debug_ranges)
 
-.debug_aranges    0x000000         0x30
+.debug_aranges    0x000000         0x90
  *(.debug_aranges)
  .debug_aranges
-                  0x000000         0x18 build/default/production/_ext/1472/init_port.o
+                  0x000000         0x18 build/default/production/_ext/1360937237/drive_test.o
  .debug_aranges
-                  0x000018         0x18 build/default/production/_ext/1472/ledtest.o
+                  0x000018         0x18 ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+ .debug_aranges
+                  0x000030         0x18 ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
+ .debug_aranges
+                  0x000048         0x18 ../library/motor_led/dist/default/production/motor_led.a(e_lsm330.o)
+ .debug_aranges
+                  0x000060         0x18 ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+ .debug_aranges
+                  0x000078         0x18 ../library/I2C/dist/default/production/I2C.a(e_I2C_protocol.o)
                     0x0000                  WREG0 = 0x0
                     0x0000                  _WREG0 = 0x0
                     0x0002                  WREG1 = 0x2
@@ -1292,32 +1570,154 @@ LOAD /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a
 LOAD /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libc-elf.a
 END GROUP
 OUTPUT(dist/default/production/e-puck.X.production.elf elf32-pic30)
+LOAD /CW/_FGS†≈ê‘≈ê__FGS.sec
 LOAD default_isr
 LOAD heap
+LOAD data_init
 
 .debug_pubtypes
-                  0x000030        0x187
+                  0x000090        0x2ef
  .debug_pubtypes
-                  0x000030        0x14b build/default/production/_ext/1472/init_port.o
+                  0x000090         0x12 build/default/production/_ext/1360937237/drive_test.o
  .debug_pubtypes
-                  0x00017b         0x3c build/default/production/_ext/1472/ledtest.o
+                  0x0000a2         0xb4 ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+ .debug_pubtypes
+                  0x000156        0x14b ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
+ .debug_pubtypes
+                  0x0002a1         0x12 ../library/motor_led/dist/default/production/motor_led.a(e_lsm330.o)
+ .debug_pubtypes
+                  0x0002b3         0xba ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+ .debug_pubtypes
+                  0x00036d         0x12 ../library/I2C/dist/default/production/I2C.a(e_I2C_protocol.o)
 
 __c30_signature
-                  0x0001b7         0x18
+                  0x00037f         0x6c
  __c30_signature
-                  0x0001b7          0x6 build/default/production/_ext/1472/init_port.o
+                  0x00037f          0x6 build/default/production/_ext/1360937237/drive_test.o
  __c30_signature
-                  0x0001bd          0x6 build/default/production/_ext/1472/ledtest.o
+                  0x000385          0x6 ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
  __c30_signature
-                  0x0001c3          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libpic30-elf.a(crt0_standard.o)
+                  0x00038b          0x6 ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
  __c30_signature
-                  0x0001c9          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libpic30-elf.a(data_init_standard.o)
+                  0x000391          0x6 ../library/motor_led/dist/default/production/motor_led.a(e_lsm330.o)
+ __c30_signature
+                  0x000397          0x6 ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+ __c30_signature
+                  0x00039d          0x6 ../library/I2C/dist/default/production/I2C.a(e_I2C_protocol.o)
+ __c30_signature
+                  0x0003a3          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libpic30-elf.a(crt0_standard.o)
+ __c30_signature
+                  0x0003a9          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libpic30-elf.a(data_init_standard.o)
+ __c30_signature
+                  0x0003af          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(divsf3.eo)
+ __c30_signature
+                  0x0003b5          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(fixunssfsi.eo)
+ __c30_signature
+                  0x0003bb          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(floatsisf.eo)
+ __c30_signature
+                  0x0003c1          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(fpack.eo)
+ __c30_signature
+                  0x0003c7          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(funpack.eo)
+ __c30_signature
+                  0x0003cd          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(funpack2.eo)
+ __c30_signature
+                  0x0003d3          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(futil.eo)
+ __c30_signature
+                  0x0003d9          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(mulsf3.eo)
+ __c30_signature
+                  0x0003df          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(floatdisf.eo)
+ __c30_signature
+                  0x0003e5          0x6 /Applications/microchip/xc16/v1.35/bin/bin/../../lib/libm-elf.a(floatundisf.eo)
 
-.heap               0x0800        0x200
- .heap              0x0800        0x200 heap
+.nbss               0x0800         0x16
+ .nbss              0x0800          0xc ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+ .nbss              0x080c          0x6 ../library/motor_led/dist/default/production/motor_led.a(e_lsm330.o)
+                    0x080c                  _gyroOffsetX
+                    0x080e                  _gyroOffsetY
+                    0x0810                  _gyroOffsetZ
+ .nbss              0x0812          0x2 ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
+                    0x0812                  _isPresentFlag
+ .nbss              0x0814          0x2 ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+                    0x0814                  _e_i2c_mode
 
-.text             0x0001ce         0xce
- .text            0x0001ce         0x8c build/default/production/_ext/1472/init_port.o
-                  0x0001ce                  _InitPort
- .text            0x00025a         0x42 build/default/production/_ext/1472/ledtest.o
-                  0x00025a                  _main
+.bss                0x0816          0x6
+ .bss               0x0816          0x6 ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+                    0x0816                  _e_interrupts
+
+.heap               0x081c        0x200
+ .heap              0x081c        0x200 heap
+
+.ivt._T5Interrupt
+                  0x000040          0x2
+ .ivt._T5Interrupt
+                  0x000040          0x2 ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+
+.ivt._T4Interrupt
+                  0x00003e          0x2
+ .ivt._T4Interrupt
+                  0x00003e          0x2 ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+
+.ivt._MI2CInterrupt
+                  0x000030          0x2
+ .ivt._MI2CInterrupt
+                  0x000030          0x2 ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+
+.text             0x000548        0x8d0
+ .text            0x000548        0x348 ../library/motor_led/dist/default/production/motor_led.a(e_lsm330.o)
+                  0x000548                  _writeReg
+                  0x000560                  _readReg
+                  0x000578                  _readRegMulti
+                  0x000600                  _initAccAndGyro
+                  0x000632                  _getAllAxesAccRaw
+                  0x000648                  _getAllAxesAcc
+                  0x000692                  _getXAxisAcc
+                  0x0006b4                  _getYAxisAcc
+                  0x0006d6                  _getZAxisAcc
+                  0x0006f8                  _getAllAxesGyroRaw
+                  0x00070e                  _getAllAxesGyro
+                  0x000764                  _getXAxisGyro
+                  0x00078a                  _getYAxisGyro
+                  0x0007b0                  _getZAxisGyro
+                  0x0007d6                  _getTemperature
+                  0x0007e2                  _calibrateGyroscope
+                  0x000868                  _rawToDps
+                  0x00087c                  _rawToDpms
+ .text            0x000890        0x310 ../library/I2C/dist/default/production/I2C.a(e_I2C_master_module.o)
+                  0x000890                  _idle_i2c
+                  0x0008c2                  _e_i2c_init
+                  0x0008fc                  _e_i2c_deinit
+                  0x00090e                  _e_i2c_reset
+                  0x000958                  _e_i2c_enable
+                  0x000964                  _e_i2c_disable
+                  0x000970                  _e_i2c_start
+                  0x0009ac                  _e_i2c_restart
+                  0x0009e8                  _e_i2c_stop
+                  0x000a18                  _e_i2c_ack
+                  0x000a76                  _e_i2c_nack
+                  0x000ad4                  _e_i2c_read
+                  0x000b6a                  _e_i2c_write
+ .text            0x000ba0         0xcc ../library/motor_led/dist/default/production/motor_led.a(e_motors.o)
+                  0x000ba0                  _e_init_motors
+                  0x000ba8                  _e_set_speed_left
+                  0x000bf2                  _e_set_speed_right
+                  0x000c3c                  _e_get_steps_left
+                  0x000c44                  _e_set_steps_left
+                  0x000c54                  _e_get_steps_right
+                  0x000c5c                  _e_set_steps_right
+ .text            0x000c6c         0xc2 ../library/motor_led/dist/default/production/motor_led.a(e_init_port.o)
+                  0x000c6c                  _testAccGyroPresence
+                  0x000c92                  _e_init_port
+                  0x000d26                  _isEpuckVersion1_3
+ .text            0x000d2e         0xb2 ../library/I2C/dist/default/production/I2C.a(e_I2C_protocol.o)
+                  0x000d2e                  _e_i2cp_init
+                  0x000d36                  _e_i2cp_deinit
+                  0x000d3e                  _e_i2cp_enable
+                  0x000d46                  _e_i2cp_disable
+                  0x000d4e                  _e_i2cp_read
+                  0x000d9c                  _e_i2cp_write
+ .text            0x000de0         0x38 build/default/production/_ext/1360937237/drive_test.o
+                  0x000de0                  _wait
+                  0x000dfa                  _main
+
+.dinit            0x000e18         0x20
+ .dinit           0x000e18         0x20 data_init
