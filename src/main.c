@@ -11,10 +11,25 @@
 #include <motor_led/advance_one_timer/e_agenda.h>
 #include <motor_led/e_epuck_ports.h>
 
+#include "p1.h"
+
 void wait(long time) {
     long i;
     for (i = 0; i < time; i++) {
         asm("nop");
+    }
+}
+
+void controller() {
+    int pos = SELECTOR0 + 2 * SELECTOR1 + 4 * SELECTOR2 + 8 * SELECTOR3;
+    switch (pos) {
+        case 0:
+            break;
+        case 1:
+            p1_run();
+            break;
+        default:
+            break;
     }
 }
 
