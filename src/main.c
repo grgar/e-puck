@@ -1,6 +1,7 @@
 #include "xc.h"
 #include "motor_led/e_init_port.h"
 #include "motor_led/e_epuck_ports.h"
+#include "motor_led/e_led.h"
 #include "motor_led/e_motors.h"
 
 void wait(long time) {
