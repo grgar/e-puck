@@ -1,3 +1,5 @@
-nbproject/private/
+private/
 build/
 dist/
+debug/
+Makefile-genesis.properties
