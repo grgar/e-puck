@@ -19,12 +19,10 @@ int main(void) {
         wait(300000);
     }
 
-     e_init_port();
-     e_init_motors();
-     int led =0;
-     while (1) {
-         e_set_body_led(led);
-         LED0 = led = led^1;
+    e_init_motors();
+    while (1) {
+        e_set_body_led(led);
+        LED0 = led = led^1;
         e_set_speed_left(1000);
         e_set_steps_left(1000);
         e_set_speed_right(1000);
