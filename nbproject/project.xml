@@ -4,9 +4,9 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
             <name>e-puck</name>
-            <creation-uuid>94e4a195-5d4c-48bf-8f83-b8bac272d864</creation-uuid>
+            <creation-uuid>117862b0-8b0f-4597-95b4-3b86858196b0</creation-uuid>
             <make-project-type>0</make-project-type>
-            <c-extensions/>
+            <c-extensions>c</c-extensions>
             <cpp-extensions/>
             <header-extensions/>
             <asminc-extensions/>

@@ -1,8 +1,15 @@
-#include "xc.h"
-#include "motor_led/e_init_port.h"
-#include "motor_led/e_epuck_ports.h"
-#include "motor_led/e_led.h"
-#include "motor_led/e_motors.h"
+#include <p30F6014A.h>
+
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+
+#include <motor_led/e_init_port.h>
+#include <motor_led/advance_one_timer/e_led.h>
+#include <motor_led/advance_one_timer/e_motors.h>
+#include <motor_led/advance_one_timer/e_agenda.h>
+#include <motor_led/e_epuck_ports.h>
 
 void wait(long time) {
     long i;
