@@ -20,7 +20,7 @@
 
 #include "../I2C/e_I2C_protocol.h"
 #include "e_lsm330.h"
-#include "../uart/e_uart_char.h"
+#include <uart/e_uart_char.h>
 #include "string.h"
 #include "stdio.h"
 
