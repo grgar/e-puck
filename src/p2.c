@@ -3,23 +3,16 @@
 #include "common.h"
 
 void p2_run() {
+    e_set_speed_left(100);
+    e_set_speed_right(100);
+    e_start_agendas_processing();
     while (1) {
-        wait(600000);
-
-        e_set_led(2, 1);
-        wait(600000);
-        e_set_led(2, 0);
     }
 
+    int led = 0;
     while (1) {
-        e_set_steps_left(100);
-
-        e_set_speed_left(100);
-
-        e_set_steps_right(100);
-
-        e_set_speed_right(100);
-
-        //wait(300000);
+        led = led^1;
+        e_set_front_led(led);
+        wait(300000);
     }
 }
