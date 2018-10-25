@@ -18,6 +18,6 @@ void p3_run() {
         e_set_body_led(led);
         e_set_led(0, led);
 
-        wait(300000);
+        delay(300000);
     }
 }

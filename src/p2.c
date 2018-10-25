@@ -14,6 +14,6 @@ void p2_run() {
     while (1) {
         led = led^1;
         e_set_front_led(led);
-        wait(300000);
+        delay(300000);
     }
 }

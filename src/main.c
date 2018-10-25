@@ -5,6 +5,7 @@
 #include <math.h>
 #include <time.h>
 
+#include <utility/utility.h>
 #include <motor_led/e_init_port.h>
 #include <motor_led/advance_one_timer/e_led.h>
 #include <motor_led/advance_one_timer/e_motors.h>
@@ -22,8 +23,7 @@
 #include "p9.h"
 
 void controller() {
-    int pos = SELECTOR0 + 2 * SELECTOR1 + 4 * SELECTOR2 + 8 * SELECTOR3;
-    switch (pos) {
+    switch (getselector()) {
         case 0:
             break;
 

@@ -22,6 +22,16 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="a_d" displayName="a_d" projectFiles="true">
+        <logicalFolder name="advance_ad_scan"
+                       displayName="advance_ad_scan"
+                       projectFiles="true">
+          <itemPath>library/a_d/advance_ad_scan/e_acc.c</itemPath>
+          <itemPath>library/a_d/advance_ad_scan/e_micro.c</itemPath>
+          <itemPath>library/a_d/advance_ad_scan/e_prox.c</itemPath>
+          <itemPath>library/a_d/advance_ad_scan/e_ad_conv.c</itemPath>
+        </logicalFolder>
+      </logicalFolder>
       <logicalFolder name="acc_gyro" displayName="acc_gyro" projectFiles="true">
         <itemPath>library/acc_gyro/e_lsm330.c</itemPath>
       </logicalFolder>
@@ -41,11 +51,20 @@
       </logicalFolder>
       <logicalFolder name="uart" displayName="uart" projectFiles="true">
       </logicalFolder>
+      <logicalFolder name="utility" displayName="utility" projectFiles="true">
+        <itemPath>library/utility/utility.c</itemPath>
+      </logicalFolder>
       <itemPath>src/main.c</itemPath>
       <itemPath>src/p1.c</itemPath>
       <itemPath>src/common.c</itemPath>
       <itemPath>src/p2.c</itemPath>
       <itemPath>src/p3.c</itemPath>
+      <itemPath>src/p6.c</itemPath>
+      <itemPath>src/p5.c</itemPath>
+      <itemPath>src/p4.c</itemPath>
+      <itemPath>src/p7.c</itemPath>
+      <itemPath>src/p9.c</itemPath>
+      <itemPath>src/p8.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -59,6 +78,8 @@
     <Elem>library/acc_gyro</Elem>
     <Elem>library/uart</Elem>
     <Elem>library/I2C</Elem>
+    <Elem>library/a_d</Elem>
+    <Elem>library/utility</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>

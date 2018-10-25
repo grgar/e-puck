@@ -1,6 +1,6 @@
 #ifndef COMMON_H
 #define	COMMON_H
 
-void wait(long time);
+void delay(long time);
 
 #endif
