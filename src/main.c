@@ -13,6 +13,7 @@
 
 #include "p1.h"
 #include "p2.h"
+#include "p3.h"
 
 void controller() {
     int pos = SELECTOR0 + 2 * SELECTOR1 + 4 * SELECTOR2 + 8 * SELECTOR3;
@@ -29,7 +30,12 @@ void controller() {
             // Drive forward
             p2_run();
             break;
-
+        
+        case 3:
+            // Flash LED 2 and scream
+            p3_run();
+            break;
+        
         default:
             break;
     }

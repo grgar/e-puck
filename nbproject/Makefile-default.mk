@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=library/acc_gyro/e_lsm330.c library/I2C/e_I2C_protocol.c library/I2C/e_I2C_master_module.c library/motor_led/advance_one_timer/e_motors.c library/motor_led/advance_one_timer/e_led.c library/motor_led/advance_one_timer/e_agenda.c library/motor_led/e_init_port.c src/main.c src/p1.c src/common.c src/p2.c
+SOURCEFILES_QUOTED_IF_SPACED=library/acc_gyro/e_lsm330.c library/I2C/e_I2C_protocol.c library/I2C/e_I2C_master_module.c library/motor_led/advance_one_timer/e_motors.c library/motor_led/advance_one_timer/e_led.c library/motor_led/advance_one_timer/e_agenda.c library/motor_led/e_init_port.c src/main.c src/p1.c src/common.c src/p2.c src/p3.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/library/acc_gyro/e_lsm330.o ${OBJECTDIR}/library/I2C/e_I2C_protocol.o ${OBJECTDIR}/library/I2C/e_I2C_master_module.o ${OBJECTDIR}/library/motor_led/advance_one_timer/e_motors.o ${OBJECTDIR}/library/motor_led/advance_one_timer/e_led.o ${OBJECTDIR}/library/motor_led/advance_one_timer/e_agenda.o ${OBJECTDIR}/library/motor_led/e_init_port.o ${OBJECTDIR}/src/main.o ${OBJECTDIR}/src/p1.o ${OBJECTDIR}/src/common.o ${OBJECTDIR}/src/p2.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/library/acc_gyro/e_lsm330.o.d ${OBJECTDIR}/library/I2C/e_I2C_protocol.o.d ${OBJECTDIR}/library/I2C/e_I2C_master_module.o.d ${OBJECTDIR}/library/motor_led/advance_one_timer/e_motors.o.d ${OBJECTDIR}/library/motor_led/advance_one_timer/e_led.o.d ${OBJECTDIR}/library/motor_led/advance_one_timer/e_agenda.o.d ${OBJECTDIR}/library/motor_led/e_init_port.o.d ${OBJECTDIR}/src/main.o.d ${OBJECTDIR}/src/p1.o.d ${OBJECTDIR}/src/common.o.d ${OBJECTDIR}/src/p2.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/library/acc_gyro/e_lsm330.o ${OBJECTDIR}/library/I2C/e_I2C_protocol.o ${OBJECTDIR}/library/I2C/e_I2C_master_module.o ${OBJECTDIR}/library/motor_led/advance_one_timer/e_motors.o ${OBJECTDIR}/library/motor_led/advance_one_timer/e_led.o ${OBJECTDIR}/library/motor_led/advance_one_timer/e_agenda.o ${OBJECTDIR}/library/motor_led/e_init_port.o ${OBJECTDIR}/src/main.o ${OBJECTDIR}/src/p1.o ${OBJECTDIR}/src/common.o ${OBJECTDIR}/src/p2.o ${OBJECTDIR}/src/p3.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/library/acc_gyro/e_lsm330.o.d ${OBJECTDIR}/library/I2C/e_I2C_protocol.o.d ${OBJECTDIR}/library/I2C/e_I2C_master_module.o.d ${OBJECTDIR}/library/motor_led/advance_one_timer/e_motors.o.d ${OBJECTDIR}/library/motor_led/advance_one_timer/e_led.o.d ${OBJECTDIR}/library/motor_led/advance_one_timer/e_agenda.o.d ${OBJECTDIR}/library/motor_led/e_init_port.o.d ${OBJECTDIR}/src/main.o.d ${OBJECTDIR}/src/p1.o.d ${OBJECTDIR}/src/common.o.d ${OBJECTDIR}/src/p2.o.d ${OBJECTDIR}/src/p3.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/library/acc_gyro/e_lsm330.o ${OBJECTDIR}/library/I2C/e_I2C_protocol.o ${OBJECTDIR}/library/I2C/e_I2C_master_module.o ${OBJECTDIR}/library/motor_led/advance_one_timer/e_motors.o ${OBJECTDIR}/library/motor_led/advance_one_timer/e_led.o ${OBJECTDIR}/library/motor_led/advance_one_timer/e_agenda.o ${OBJECTDIR}/library/motor_led/e_init_port.o ${OBJECTDIR}/src/main.o ${OBJECTDIR}/src/p1.o ${OBJECTDIR}/src/common.o ${OBJECTDIR}/src/p2.o
+OBJECTFILES=${OBJECTDIR}/library/acc_gyro/e_lsm330.o ${OBJECTDIR}/library/I2C/e_I2C_protocol.o ${OBJECTDIR}/library/I2C/e_I2C_master_module.o ${OBJECTDIR}/library/motor_led/advance_one_timer/e_motors.o ${OBJECTDIR}/library/motor_led/advance_one_timer/e_led.o ${OBJECTDIR}/library/motor_led/advance_one_timer/e_agenda.o ${OBJECTDIR}/library/motor_led/e_init_port.o ${OBJECTDIR}/src/main.o ${OBJECTDIR}/src/p1.o ${OBJECTDIR}/src/common.o ${OBJECTDIR}/src/p2.o ${OBJECTDIR}/src/p3.o
 
 # Source Files
-SOURCEFILES=library/acc_gyro/e_lsm330.c library/I2C/e_I2C_protocol.c library/I2C/e_I2C_master_module.c library/motor_led/advance_one_timer/e_motors.c library/motor_led/advance_one_timer/e_led.c library/motor_led/advance_one_timer/e_agenda.c library/motor_led/e_init_port.c src/main.c src/p1.c src/common.c src/p2.c
+SOURCEFILES=library/acc_gyro/e_lsm330.c library/I2C/e_I2C_protocol.c library/I2C/e_I2C_master_module.c library/motor_led/advance_one_timer/e_motors.c library/motor_led/advance_one_timer/e_led.c library/motor_led/advance_one_timer/e_agenda.c library/motor_led/e_init_port.c src/main.c src/p1.c src/common.c src/p2.c src/p3.c
 
 
 CFLAGS=
@@ -171,6 +171,13 @@ ${OBJECTDIR}/src/p2.o: src/p2.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE)  src/p2.c  -o ${OBJECTDIR}/src/p2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/p2.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -DXPRJ_default=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD)  -mlarge-code -mlarge-data -O0 -I"library/uart" -I"library" -I"src" -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/src/p2.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/src/p3.o: src/p3.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src" 
+	@${RM} ${OBJECTDIR}/src/p3.o.d 
+	@${RM} ${OBJECTDIR}/src/p3.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/p3.c  -o ${OBJECTDIR}/src/p3.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/p3.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -DXPRJ_default=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD)  -mlarge-code -mlarge-data -O0 -I"library/uart" -I"library" -I"src" -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/src/p3.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 else
 ${OBJECTDIR}/library/acc_gyro/e_lsm330.o: library/acc_gyro/e_lsm330.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/library/acc_gyro" 
@@ -248,6 +255,13 @@ ${OBJECTDIR}/src/p2.o: src/p2.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/src/p2.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  src/p2.c  -o ${OBJECTDIR}/src/p2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/p2.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD)  -mlarge-code -mlarge-data -O0 -I"library/uart" -I"library" -I"src" -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/src/p2.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/src/p3.o: src/p3.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src" 
+	@${RM} ${OBJECTDIR}/src/p3.o.d 
+	@${RM} ${OBJECTDIR}/src/p3.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/p3.c  -o ${OBJECTDIR}/src/p3.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/p3.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD)  -mlarge-code -mlarge-data -O0 -I"library/uart" -I"library" -I"src" -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/src/p3.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif
 
