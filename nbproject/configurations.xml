@@ -8,6 +8,12 @@
       <itemPath>src/common.h</itemPath>
       <itemPath>src/p2.h</itemPath>
       <itemPath>src/p3.h</itemPath>
+      <itemPath>src/p4.h</itemPath>
+      <itemPath>src/p5.h</itemPath>
+      <itemPath>src/p6.h</itemPath>
+      <itemPath>src/p7.h</itemPath>
+      <itemPath>src/p8.h</itemPath>
+      <itemPath>src/p9.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
