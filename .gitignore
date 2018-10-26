@@ -2,7 +2,5 @@ private/
 build/
 dist/
 debug/
-Makefile-genesis.properties
-nbproject/Makefile-variables.mk
-nbproject/Makefile-local-default.mk
-nbproject/Makefile-impl.mk
+nbproject/Makefile-*
+nbproject/Package-default.bash
