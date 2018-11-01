@@ -1,7 +1,7 @@
 #include <motor_led/e_init_port.h>
-#include <motor_led/advance_one_timer/e_led.h>
-#include <motor_led/advance_one_timer/e_motors.h>
-#include <motor_led/advance_one_timer/e_agenda.h>
+#include <motor_led/advance_one_timer/fast_agenda/e_led.h>
+#include <motor_led/advance_one_timer/fast_agenda/e_motors.h>
+#include <motor_led/advance_one_timer/fast_agenda/e_agenda_fast.h>
 #include <common.h>
 
 void p16_run() {
