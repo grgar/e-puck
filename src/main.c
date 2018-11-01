@@ -42,6 +42,30 @@ void controller() {
             p3_run();
             break;
 
+        case 4:
+            p4_run();
+            break;
+
+        case 5:
+            p5_run();
+            break;
+
+        case 6:
+            p6_run();
+            break;
+
+        case 7:
+            p7_run();
+            break;
+
+        case 8:
+            p8_run();
+            break;
+
+        case 9:
+            p9_run();
+            break;
+
         default:
             break;
     }
@@ -49,32 +73,49 @@ void controller() {
 
 void zero_position() {
     if (getselector() == 0) {
-        e_set_front_led(1);
+        e_set_body_led(1);
     } else {
-        e_set_front_led(0);
+        e_set_body_led(0);
     }
 }
 
 int main(void) {
+    // Begin by setting ports for other operations to access e-puck
     e_init_port();
+    // Show that execution has begun by turning on body LED
+    // If body LED illuminates again after this initial setup process,
+    // an error has occurred
     e_set_body_led(1);
 
+    // Analog to digital setup, for IR
     e_init_ad_scan(ALL_ADC);
+    // When e-puck starts, calibration is performed immediately
+    // Calibration fails if attempted after agendas are prepared,
+    // so unfortunately it's not possible to lateinit
     e_calibrate_ir();
 
+    // Configure timer 1, 2, 3 on e-puck
     e_configure_timer(0);
     e_start_timer_processing(0);
+    // No agenda functions should be added to the queue yet
     e_start_agendas_processing();
 
+    // Initialising the motors must be done after agendas are ready,
+    // due to implementation calling `e_activate_agenda` if __AGENDA_FAST_H__
+    // is defined, which is as fast_agenda is used
     e_init_motors();
 
+    // At any time, selecting position 0 turns on body LED, indicating 0 has
+    // been reached and reset can be pressed to halt execution
     e_activate_agenda(zero_position, 1000);
+    // Preliminary configuration complete, turn off body LED
     e_set_body_led(0);
 
+    // Main execution of px.c files based on selector position begins
     controller();
 
+    // If px_run() function returns, body LED turns on to show this
     while (1) {
-        // Error
         e_set_body_led(1);
     }
     return 0;
