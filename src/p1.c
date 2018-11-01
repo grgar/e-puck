@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <motor_led/advance_one_timer/e_led.h>
 #include <motor_led/advance_one_timer/e_motors.h>
 #include <motor_led/advance_one_timer/e_agenda.h>
@@ -8,7 +9,7 @@
 int ir_front = 2000;
 
 void p1_read() {
-    ir_front = (e_get_calibrated_prox(0) + e_get_calibrated_prox(7)) / 2;
+    ir_front = max(e_get_calibrated_prox(0), e_get_calibrated_prox(7));
     if (ir_front < 3000) {
         e_set_led(3, 1);
     } else {
@@ -17,15 +18,17 @@ void p1_read() {
 }
 
 void p1_drive() {
-    int ir_drive = 3000;
-    if (ir_front < 3000) {
-        ir_drive = ir_front;
+    if (ir_front < 500) {
+        e_set_speed(350, 0);
+    } else {
+        if (e_get_calibrated_prox(0) < e_get_calibrated_prox(7)) {
+            // Turn left
+            e_set_speed(0, -1000);
+        } else {
+            // Turn right
+            e_set_speed(0, 1000);
+        }
     }
-    ir_drive = 1000 - (ir_drive / 3);
-    if (ir_drive < 350) {
-        ir_drive = 0;
-    }
-    e_set_speed(ir_drive, 0);
 }
 
 void p1_run() {
