@@ -9,19 +9,23 @@ int ir_front = 2000;
 
 void p1_read() {
     ir_front = (e_get_calibrated_prox(0) + e_get_calibrated_prox(7)) / 2;
-    if (ir_front < 2000) {
-        e_set_led(0, 1);
+    if (ir_front < 3000) {
+        e_set_led(3, 1);
     } else {
-        e_set_led(0, 1);
+        e_set_led(3, 0);
     }
 }
 
 void p1_drive() {
-    if (ir_front < 1000) {
-        e_set_speed(1000, 0);
-    } else {
-        e_set_speed(0, 0);
+    int ir_drive = 3000;
+    if (ir_front < 3000) {
+        ir_drive = ir_front;
     }
+    ir_drive = 1000 - (ir_drive / 3);
+    if (ir_drive < 350) {
+        ir_drive = 0;
+    }
+    e_set_speed(ir_drive, 0);
 }
 
 void p1_run() {
