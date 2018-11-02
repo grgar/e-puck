@@ -6,26 +6,26 @@
 #include "common.h"
 
 // IR percentages, 100% clear, 0% blocked
-int ir[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-int ir_front = 0;
+int p1_irv[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+int p1_ir_front = 0;
 
 void p1_ir() {
     int i;
     for (i = 0; i < 8; i++) {
-        ir[i] = 100 - (min(e_get_calibrated_prox(i), 3000) / 30);
+        p1_irv[i] = 100 - (min(e_get_calibrated_prox(i), 3000) / 30);
     }
-    ir_front = max(ir[0], ir[7]);
-    if (ir_front > 90) {
+    p1_ir_front = max(p1_irv[0], p1_irv[7]);
+    if (p1_ir_front > 90) {
         e_set_led(3, 1);
     } else {
         e_set_led(3, 0);
     }
 }
 
-int direction_adjust = 0;
+int p1_direction_adjust = 0;
 
 void p1_obstacle() {
-    if (ir_front > 90) {
+    if (p1_ir_front > 90) {
         return;
     }
 
@@ -35,7 +35,7 @@ void p1_obstacle() {
         return;
     }*/
 
-    if (ir[0] > ir[7]) {
+    if (p1_irv[0] > p1_irv[7]) {
         // Turn left
         e_set_speed(0, -1000);
         return;
@@ -47,34 +47,34 @@ void p1_obstacle() {
 }
 
 void p1_drive() {
-    if (ir_front > 90) {
-        e_set_speed(350, direction_adjust);
+    if (p1_ir_front > 90) {
+        e_set_speed(350, p1_direction_adjust);
     }
 }
 
 void p1_direction() {
-    if (!(ir[1] < 85 || ir[2] < 85 || ir[5] < 85 || ir[6] < 85)) {
-        direction_adjust = 0;
+    if (!(p1_irv[1] < 85 || p1_irv[2] < 85 || p1_irv[5] < 85 || p1_irv[6] < 85)) {
+        p1_direction_adjust = 0;
         return;
     }
 
     // Front-side
-    if (ir[1] < 85) {
-        direction_adjust = 100;
+    if (p1_irv[1] < 85) {
+        p1_direction_adjust = 100;
     }
-    if (ir[6] < 85) {
-        direction_adjust = -100;
+    if (p1_irv[6] < 85) {
+        p1_direction_adjust = -100;
     }
-    if (ir[1] < 85 || ir[6] < 85) {
+    if (p1_irv[1] < 85 || p1_irv[6] < 85) {
         return;
     }
 
     // Side
-    if (ir[2] < 85) {
-        direction_adjust = 50;
+    if (p1_irv[2] < 85) {
+        p1_direction_adjust = 50;
     }
-    if (ir[5] < 85) {
-        direction_adjust = -50;
+    if (p1_irv[5] < 85) {
+        p1_direction_adjust = -50;
     }
 }
 
