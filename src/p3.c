@@ -40,26 +40,34 @@ void p3_run() {
             if ((p3_sensors[0] > p3_light) || (p3_sensors[7] > p3_light)) {
                 e_set_speed(800, 0);
             }
-            if (p3_sensors[1] > p3_light) {
-                e_set_speed(800, -200);
-            }
 
+
+            //Gives s3 priority over s2 and s2 over s1
             if (p3_sensors[3] > p3_light) {
                 e_set_speed(0, -900);
             } else {
                 if (p3_sensors[2] > p3_light) {
                     e_set_speed(0, -500);
+                } else {
+
+                    if (p3_sensors[1] > p3_light) {
+                        e_set_speed(800, -200);
+                    }
                 }
             }
+
+
+            //Gives s4 priority over s5 and s5 over s6
             if (p3_sensors[4] > p3_light) {
                 e_set_speed(0, 900);
             } else {
                 if (p3_sensors[5] > p3_light) {
                     e_set_speed(0, 500);
+                } else {
+                    if (p3_sensors[6] > p3_light) {
+                        e_set_speed(800, 200);
+                    }
                 }
-            }
-            if (p3_sensors[6] > p3_light) {
-                e_set_speed(800, 200);
             }
             for (i = 0; i < 8; i++) {
                 if (p3_sensors[i] > p3_light) {
