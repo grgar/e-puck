@@ -30,26 +30,48 @@ void p3_run() {
         //Ambient Light ~1000
         //Sees from around 15cm
         //Value for it to follow torch
+        //Turns around to face the light as it loves it
 
         int i;
-        for (i = 0; i < 8; i++) {
-            if (sensors[i] > 1120) {
-                e_set_led(i, 1);
-                e_set_speed_left(1000);
-                e_set_speed_right(1000);
-            } else {
-                e_set_led(i, 0);
-            }
-            if (sensors[i] < 0) {
-                e_set_front_led(1);
-            } else {
-                e_set_front_led(0);
-            }
-        }
         if(p3_any_sensor_on() == 0){
-             e_set_speed_left(0);
-             e_set_speed_right(0);
+            e_set_speed(0,0);
         }
+        else{
+            if ((sensors[0] > 1120) || (sensors[7] > 1120)){
+                e_set_speed(800,0);
+            }
+            if(sensors[1] > 1120){
+                e_set_speed(800,-200);
+            }
+            if(sensors[2] > 1120){
+                e_set_speed(800, -350);
+            }
+            if(sensors[3] > 1120){
+                e_set_speed(800, -650);
+            }
+            if(sensors[4] > 1120){
+                e_set_speed(800, 650);
+            }
+            if(sensors[5] > 1120){
+                e_set_speed(800, 350);
+            }
+            if(sensors[6] > 1120){
+                e_set_speed(800, 200);
+            }
+            for (i = 0; i < 8; i++) {
+                if (sensors[i] > 1120) {
+                    e_set_led(i, 1);
+                } else {
+                    e_set_led(i, 0);
+                }
+                if (sensors[i] < 0) {
+                    e_set_front_led(1);
+                } else {
+                    e_set_front_led(0);
+                }
+            }
+        }
+        
 
 
     }
