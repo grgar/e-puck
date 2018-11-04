@@ -4,19 +4,20 @@
 #include "motor_led/advance_one_timer/fast_agenda/e_agenda_fast.h"
 #include "a_d/advance_ad_scan/e_prox.h"
 
-int sensors[8] = {0};
+int p3_sensors[8] = {0};
+int p3_light = 1100;
 
 void p3_sense() {
     int i;
     for (i = 0; i < 8; i++) {
-        sensors[i] = 5000 - (e_get_ambient_light(i));
+        p3_sensors[i] = 5000 - (e_get_ambient_light(i));
     }
 }
 
-int p3_any_sensor_on(){
+int p3_any_sensor_on() {
     int i;
-    for (i=0; i < 8; i++){
-        if (sensors[i] > 1120){
+    for (i = 0; i < 8; i++) {
+        if (p3_sensors[i] > p3_light) {
             return 1;
         }
     }
@@ -33,45 +34,47 @@ void p3_run() {
         //Turns around to face the light as it loves it
 
         int i;
-        if(p3_any_sensor_on() == 0){
-            e_set_speed(0,0);
-        }
-        else{
-            if ((sensors[0] > 1120) || (sensors[7] > 1120)){
-                e_set_speed(800,0);
+        if (p3_any_sensor_on() == 0) {
+            e_set_speed(0, 0);
+        } else {
+            if ((p3_sensors[0] > p3_light) || (p3_sensors[7] > p3_light)) {
+                e_set_speed(800, 0);
             }
-            if(sensors[1] > 1120){
-                e_set_speed(800,-200);
+            if (p3_sensors[1] > p3_light) {
+                e_set_speed(800, -200);
             }
-            if(sensors[2] > 1120){
-                e_set_speed(800, -350);
+
+            if (p3_sensors[3] > p3_light) {
+                e_set_speed(0, -900);
+            } else {
+                if (p3_sensors[2] > p3_light) {
+                    e_set_speed(0, -500);
+                }
             }
-            if(sensors[3] > 1120){
-                e_set_speed(800, -650);
+            if (p3_sensors[4] > p3_light) {
+                e_set_speed(0, 900);
+            } else {
+                if (p3_sensors[5] > p3_light) {
+                    e_set_speed(0, 500);
+                }
             }
-            if(sensors[4] > 1120){
-                e_set_speed(800, 650);
-            }
-            if(sensors[5] > 1120){
-                e_set_speed(800, 350);
-            }
-            if(sensors[6] > 1120){
+            if (p3_sensors[6] > p3_light) {
                 e_set_speed(800, 200);
             }
             for (i = 0; i < 8; i++) {
-                if (sensors[i] > 1120) {
+                if (p3_sensors[i] > p3_light) {
                     e_set_led(i, 1);
                 } else {
                     e_set_led(i, 0);
                 }
-                if (sensors[i] < 0) {
+                if (p3_sensors[i] < 0) {
                     e_set_front_led(1);
                 } else {
                     e_set_front_led(0);
                 }
             }
         }
-        
+
 
 
     }
