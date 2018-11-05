@@ -2,5 +2,6 @@
 #define	COMMON_H
 
 void delay(long time);
+int between(int in, int low, int high);
 
 #endif

@@ -5,84 +5,126 @@
 #include <motor_led/advance_one_timer/fast_agenda/e_agenda_fast.h>
 #include "common.h"
 
-// IR percentages, 100% clear, 0% blocked
-int p1_irv[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-int p1_ir_front = 0;
+typedef struct {
+    /**
+     * IR percentages, 100% clear, 0% blocked
+     */
+    int val[8];
+    int front;
+} p1_IR;
 
-void p1_ir() {
+p1_IR p1_ir = {.val =
+    { 0}, .front = 0};
+
+void p1_sense() {
     int i;
     for (i = 0; i < 8; i++) {
-        p1_irv[i] = 100 - (min(e_get_calibrated_prox(i), 3000) / 30);
+        p1_ir.val[i] = max(100 - (min(e_get_calibrated_prox(i), 3000) / 30), 0);
     }
-    p1_ir_front = max(p1_irv[0], p1_irv[7]);
-    if (p1_ir_front > 90) {
-        e_set_led(3, 1);
-    } else {
-        e_set_led(3, 0);
-    }
+    p1_ir.front = min(p1_ir.val[0], p1_ir.val[7]);
 }
 
-int p1_direction_adjust = 0;
+typedef struct {
+    int speed;
+    int direction;
+} p1_V;
 
-void p1_obstacle() {
-    if (p1_ir_front > 90) {
-        return;
-    }
-
-    /*if (!(ir[1] > 85 || ir[6] > 85)) {
-        // Trapped, reverse
-        e_set_speed(-450, (ir[1] > ir[6]) ? 100 : -100);
-        return;
-    }*/
-
-    if (p1_irv[0] > p1_irv[7]) {
-        // Turn left
-        e_set_speed(0, -1000);
-        return;
-    } else {
-        // Turn right
-        e_set_speed(0, 1000);
-        return;
-    }
-}
+p1_V p1_v = {.speed = 0, .direction = 0};
 
 void p1_drive() {
-    if (p1_ir_front > 90) {
-        e_set_speed(350, p1_direction_adjust);
+    e_set_speed(p1_v.speed, p1_v.direction);
+    if (p1_v.speed > 850) {
+        e_set_body_led(1);
+    } else {
+        e_set_body_led(0);
     }
 }
 
-void p1_direction() {
-    if (!(p1_irv[1] < 85 || p1_irv[2] < 85 || p1_irv[5] < 85 || p1_irv[6] < 85)) {
-        p1_direction_adjust = 0;
-        return;
+p1_V p1_obstacle_uncertainty(p1_V v) {
+    if (v.speed > 800) {
+        int i;
+        for (i = 0; i < 8; i++) {
+            if (p1_ir.val[i] < 100) {
+                v.speed = min(v.speed, 800);
+                return v;
+            }
+        }
     }
+    return v;
+}
 
-    // Front-side
-    if (p1_irv[1] < 85) {
-        p1_direction_adjust = 100;
+p1_V p1_obstacle_adjust(p1_V v) {
+    // Only adjust for side obstacles if:
+    // robot not stationary, and
+    // robot seeing obstacle on the side
+    if (v.speed <= 0 ||
+            min(
+            min(p1_ir.val[1], p1_ir.val[2]),
+            min(p1_ir.val[5], p1_ir.val[6])
+            ) > 90) {
+        return v;
     }
-    if (p1_irv[6] < 85) {
-        p1_direction_adjust = -100;
-    }
-    if (p1_irv[1] < 85 || p1_irv[6] < 85) {
-        return;
-    }
+    int ir_right = 100 - p1_ir.val[1] + (100 - p1_ir.val[2]) * 0.5;
+    int ir_left = 100 - p1_ir.val[6] + (100 - p1_ir.val[5]) * 0.5;
+    v.direction = ir_right - ir_left;
+    v.speed = between(abs(v.direction) * -2, 100, 350);
+    return v;
+}
 
-    // Side
-    if (p1_irv[2] < 85) {
-        p1_direction_adjust = 50;
+p1_V p1_obstacle_avoid(p1_V v) {
+    if (p1_ir.front > 90) {
+        e_set_led(4, 1);
+        return v;
     }
-    if (p1_irv[5] < 85) {
-        p1_direction_adjust = -50;
+    e_set_led(4, 0);
+
+    v.speed = 0;
+    v.direction =
+            p1_ir.val[0] > p1_ir.val[7] ?
+            // Turn left
+            -1000 :
+            // Turn right
+            1000;
+
+    return v;
+}
+
+p1_V p1_obstacle_surrounded(p1_V v) {
+    int i;
+    for (i = 0; i < 8; i++) {
+        if (p1_ir.val[i] > 0) {
+            return v;
+        }
     }
+    v.speed = 0;
+    v.direction = 0;
+    return v;
+}
+
+void p1_obstacle() {
+    p1_V v;
+    v.speed = 1000;
+    v.direction = 0;
+
+    // Cap speed if detected uncertainty
+    v = p1_obstacle_uncertainty(v);
+
+    // Avoid front obstacles
+    v = p1_obstacle_avoid(v);
+
+    // Avoid side obstacles
+    v = p1_obstacle_adjust(v);
+
+    // Avoid panic
+    //v = p1_obstacle_surrounded(v);
+
+    p1_v = v;
 }
 
 void p1_run() {
-    e_activate_agenda(p1_ir, 500);
-    e_activate_agenda(p1_drive, 1000);
-    e_activate_agenda(p1_obstacle, 1000);
-    e_activate_agenda(p1_direction, 1000);
+    e_activate_agenda(p1_sense, 500);
+    e_activate_agenda(p1_drive, 500);
+    e_activate_agenda(p1_obstacle, 500);
     while (1) {
     }
 }
