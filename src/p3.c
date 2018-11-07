@@ -97,11 +97,7 @@ void p3_run() {
             for (i = 0; i < 8; i++) {
                 switch (i) {
                     case 0:
-                        e_set_led(i, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
-                        break;
                     case 1:
-                        e_set_led(i, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
-                        break;
                     case 2:
                         e_set_led(i, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
                         break;
@@ -112,8 +108,6 @@ void p3_run() {
                         e_set_led(i, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
                         break;
                     case 5:
-                        e_set_led(i+1, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
-                        break;
                     case 6:
                         e_set_led(i+1, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
                         break;
