@@ -5,7 +5,6 @@
 #include "a_d/advance_ad_scan/e_prox.h"
 
 int p3_sensors[8] = {0};
-int p3_light = 1100;
 
 void p3_sense() {
     int i;
@@ -14,10 +13,26 @@ void p3_sense() {
     }
 }
 
+int p3_average_light(int position){
+    int i;
+    int sum = 0;
+    for (i=0; i<8; i++){
+        if (i == position){
+            continue;
+        }
+        sum = sum + p3_sensors[i];
+    }
+    return sum/7;
+}
+
+int p3_tolerance(int position){
+    return p3_average_light(position) + 35;
+}
+
 int p3_any_sensor_on() {
     int i;
     for (i = 0; i < 8; i++) {
-        if (p3_sensors[i] > p3_light) {
+        if (p3_sensors[i] > p3_tolerance(i)) {
             return 1;
         }
     }
@@ -37,20 +52,20 @@ void p3_run() {
         if (p3_any_sensor_on() == 0) {
             e_set_speed(0, 0);
         } else {
-            if ((p3_sensors[0] > p3_light) || (p3_sensors[7] > p3_light)) {
+            if ((p3_sensors[0] > p3_tolerance(0)) || (p3_sensors[7] > p3_tolerance(7))) {
                 e_set_speed(800, 0);
             }
 
 
             //Gives s3 priority over s2 and s2 over s1
-            if (p3_sensors[3] > p3_light) {
+            if (p3_sensors[3] > p3_tolerance(3)) {
                 e_set_speed(0, -900);
             } else {
-                if (p3_sensors[2] > p3_light) {
+                if (p3_sensors[2] > p3_tolerance(2)) {
                     e_set_speed(0, -500);
                 } else {
 
-                    if (p3_sensors[1] > p3_light) {
+                    if (p3_sensors[1] > p3_tolerance(1)) {
                         e_set_speed(800, -200);
                     }
                 }
@@ -58,19 +73,19 @@ void p3_run() {
 
 
             //Gives s4 priority over s5 and s5 over s6
-            if (p3_sensors[4] > p3_light) {
+            if (p3_sensors[4] > p3_tolerance(4)) {
                 e_set_speed(0, 900);
             } else {
-                if (p3_sensors[5] > p3_light) {
+                if (p3_sensors[5] > p3_tolerance(5)) {
                     e_set_speed(0, 500);
                 } else {
-                    if (p3_sensors[6] > p3_light) {
+                    if (p3_sensors[6] > p3_tolerance(6)) {
                         e_set_speed(800, 200);
                     }
                 }
             }
             for (i = 0; i < 8; i++) {
-                if (p3_sensors[i] > p3_light) {
+                if (p3_sensors[i] > p3_tolerance(i)) {
                     e_set_led(i, 1);
                 } else {
                     e_set_led(i, 0);
