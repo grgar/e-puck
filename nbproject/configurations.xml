@@ -35,6 +35,20 @@
       <logicalFolder name="acc_gyro" displayName="acc_gyro" projectFiles="true">
         <itemPath>library/acc_gyro/e_lsm330.c</itemPath>
       </logicalFolder>
+      <logicalFolder name="camera" displayName="camera" projectFiles="true">
+        <logicalFolder name="fast_2_timer"
+                       displayName="fast_2_timer"
+                       projectFiles="true">
+          <itemPath>library/camera/fast_2_timer/e_calc_po3030k.c</itemPath>
+          <itemPath>library/camera/fast_2_timer/e_common.c</itemPath>
+          <itemPath>library/camera/fast_2_timer/e_po8030d_registers.c</itemPath>
+          <itemPath>library/camera/fast_2_timer/e_calc_po6030k.c</itemPath>
+          <itemPath>library/camera/fast_2_timer/e_po6030k_registers.c</itemPath>
+          <itemPath>library/camera/fast_2_timer/e_calc_po8030d.c</itemPath>
+          <itemPath>library/camera/fast_2_timer/e_po3030k_registers.c</itemPath>
+          <itemPath>library/camera/fast_2_timer/e_timers.c</itemPath>
+        </logicalFolder>
+      </logicalFolder>
       <logicalFolder name="I2C" displayName="I2C" projectFiles="true">
         <itemPath>library/I2C/e_I2C_protocol.c</itemPath>
         <itemPath>library/I2C/e_I2C_master_module.c</itemPath>
@@ -82,6 +96,7 @@
     <Elem>library/I2C</Elem>
     <Elem>library/a_d</Elem>
     <Elem>library/utility</Elem>
+    <Elem>library/camera</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
