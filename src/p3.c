@@ -53,7 +53,7 @@ void p3_run() {
             e_set_speed(0, 0);
         } else {
             if ((p3_sensors[0] > p3_tolerance(0)) && (p3_sensors[7] > p3_tolerance(7))) {
-                e_set_speed(800, 0);
+                e_set_speed(1000, 0);
             }
 
 
@@ -95,11 +95,33 @@ void p3_run() {
 
 
             for (i = 0; i < 8; i++) {
-                if (p3_sensors[i] > p3_tolerance(i)) {
-                    e_set_led(i, 1);
-                } else {
-                    e_set_led(i, 0);
+                switch (i) {
+                    case 0:
+                        e_set_led(i, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
+                        break;
+                    case 1:
+                        e_set_led(i, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
+                        break;
+                    case 2:
+                        e_set_led(i, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
+                        break;
+                    case 3:
+                        e_set_led(i+1, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
+                        break;
+                    case 4:
+                        e_set_led(i, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
+                        break;
+                    case 5:
+                        e_set_led(i+1, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
+                        break;
+                    case 6:
+                        e_set_led(i+1, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
+                        break;
+                    case 7:
+                        e_set_led(0, p3_sensors[i] > p3_tolerance(i) ? 1 : 0);
+                        break;
                 }
+
                 if (p3_sensors[i] < 0) {
                     e_set_front_led(1);
                 } else {
