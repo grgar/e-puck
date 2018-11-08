@@ -33,15 +33,11 @@ p1_V p1_v = {.speed = 0, .direction = 0};
 
 void p1_drive() {
     e_set_speed(p1_v.speed, p1_v.direction);
-    if (p1_v.speed > 850) {
-        e_set_body_led(1);
-    } else {
-        e_set_body_led(0);
-    }
 }
 
 p1_V p1_obstacle_uncertainty(p1_V v) {
-    if (v.speed > 800) {
+    if (v.speed >= 800) {
+        e_set_body_led(1);
         int i;
         for (i = 0; i < 8; i++) {
             if (p1_ir.val[i] < 100) {
@@ -49,6 +45,8 @@ p1_V p1_obstacle_uncertainty(p1_V v) {
                 return v;
             }
         }
+    } else {
+        e_set_body_led(0);
     }
     return v;
 }
@@ -61,13 +59,13 @@ p1_V p1_obstacle_adjust(p1_V v) {
             min(
             min(p1_ir.val[1], p1_ir.val[2]),
             min(p1_ir.val[5], p1_ir.val[6])
-            ) > 90) {
+            ) > 80) {
         return v;
     }
     int ir_right = 100 - p1_ir.val[1] + (100 - p1_ir.val[2]) * 0.5;
     int ir_left = 100 - p1_ir.val[6] + (100 - p1_ir.val[5]) * 0.5;
     v.direction = ir_right - ir_left;
-    v.speed = between(abs(v.direction) * -2, 100, 350);
+    v.speed = between(abs(v.direction) * -1 + 200, 350, 600);
     return v;
 }
 
@@ -101,6 +99,20 @@ p1_V p1_obstacle_surrounded(p1_V v) {
     return v;
 }
 
+int p1_startup_complete = 0;
+p1_V p1_startup_torque(p1_V v) {
+    if (p1_startup_complete == 1) {
+        return v;
+    }
+    int steps = abs(e_get_steps_left() + e_get_steps_right());
+    if (steps < 500) {
+        v.speed = max(v.speed, (steps + 10) * 5);
+    } else {
+        p1_startup_complete = 1;
+    }
+    return v;
+}
+
 void p1_obstacle() {
     p1_V v;
     v.speed = 1000;
@@ -117,7 +129,10 @@ void p1_obstacle() {
 
     // Avoid panic
     //v = p1_obstacle_surrounded(v);
-
+    
+    // Reduce instant torque on startup
+    v = p1_startup_torque(v);
+    
     p1_v = v;
 }
 

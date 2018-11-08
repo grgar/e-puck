@@ -8,6 +8,10 @@ void delay(long time) {
     }
 }
 
-int between(int in, int low, int high) {
-    return max(min(in, high), low);
+int between(int n, int low, int high) {
+    return max(min(n, high), low);
+}
+
+int scale(int n, int from, int to) {
+    return n * to / from;
 }
