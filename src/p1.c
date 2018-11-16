@@ -36,7 +36,8 @@ void p1_drive() {
 }
 
 p1_V p1_obstacle_uncertainty(p1_V v) {
-    if (v.speed >= 800) {
+    // Current speed instead of passed in speed
+    if (p1_v.speed >= 800) {
         e_set_body_led(1);
         int i;
         for (i = 0; i < 8; i++) {
@@ -88,14 +89,21 @@ p1_V p1_obstacle_avoid(p1_V v) {
 }
 
 p1_V p1_obstacle_surrounded(p1_V v) {
+    // Check front and side sensors for collision
+    int sum = 0;
     int i;
     for (i = 0; i < 8; i++) {
-        if (p1_ir.val[i] > 0) {
-            return v;
+        if (i == 3 || i == 4) {
+            // Ignore back sensors in initial sensor pass
+            continue;
         }
+        sum += p1_ir.val[i];
     }
-    v.speed = 0;
-    v.direction = 0;
+    if (sum < 100) {
+        // Surrounded
+        v.speed = 0;
+        v.direction = -1000;
+    }
     return v;
 }
 
@@ -105,8 +113,9 @@ p1_V p1_startup_torque(p1_V v) {
         return v;
     }
     int steps = abs(e_get_steps_left() + e_get_steps_right());
-    if (steps < 500) {
-        v.speed = max(v.speed, (steps + 10) * 5);
+    if (steps < 50) {
+        v.speed = min(v.speed, (steps + 10) * 5);
+        v.direction = between(v.direction, -10, 10);
     } else {
         p1_startup_complete = 1;
     }
@@ -128,10 +137,10 @@ void p1_obstacle() {
     v = p1_obstacle_adjust(v);
 
     // Avoid panic
-    //v = p1_obstacle_surrounded(v);
+    v = p1_obstacle_surrounded(v);
     
     // Reduce instant torque on startup
-    v = p1_startup_torque(v);
+    //v = p1_startup_torque(v);
     
     p1_v = v;
 }
