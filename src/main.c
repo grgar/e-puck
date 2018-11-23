@@ -106,6 +106,11 @@ int main(void) {
     // Configure timer 1, 2, 3 on e-puck
     e_configure_timer(0);
     e_start_timer_processing(0);
+    
+	e_poxxxx_init_cam();
+	e_poxxxx_config_cam(0,(ARRAY_HEIGHT - 4) / 2, 640, 4, 8, 4, RGB_565_MODE);
+	e_poxxxx_write_cam_registers(); 
+    
     // No agenda functions should be added to the queue yet
     e_start_agendas_processing();
 

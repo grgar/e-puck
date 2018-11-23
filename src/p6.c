@@ -4,81 +4,70 @@
 #include "motor_led/advance_one_timer/e_agenda.h"
 #include "uart/e_uart_char.h"
 #include "motor_led/advance_one_timer/e_led.h"
+#include "camera/fast_2_timer/e_poxxxx.h"
 
 #include "stdio.h"
 #include "string.h"
 #include "stdlib.h"
 
-#include <motor_led/advance_one_timer/fast_agenda/e_led.h>
-#include <motor_led/advance_one_timer/fast_agenda/e_motors.h>
-
+#include "./p6.h"
 
 typedef int bool;
 #define true 1
 #define false 0
 
-//void p6_run(void){
-//	//basic set up for camera
-//	e_poxxxx_init_cam();
-//	e_poxxxx_config_cam(0,(ARRAY_HEIGHT - 4)/2,640,4,8,4,RGB_565_MODE);
-//	e_poxxxx_write_cam_registers(); 
-//
-//	e_start_agendas_processing();
-//	int centreValue;
-//
-//	while(1){
-//		getImage();
-//		Image();
-//		e_led_clear();
-//
-//		//Take a section of the center, this means if there is an error with one it won't effect it as a whole.
-//		centreValue = numbuffer[38] + numbuffer[39] + numbuffer[40] + numbuffer[41] + numbuffer[42] + numbuffer[43]; // removes stray 
-//		if(centreValue > 3){ //If red is in the middle then stay still			
-//			e_destroy_agenda(turn);
-//			e_set_speed_left (0);
-//			e_set_speed_right(0);
-//			e_set_led(0,1);
-//		}else if(isRedVisable){//If red isn't in the center but is visable then picks a direction to turn to face it
-//			e_activate_agenda(turn, 650);
-//			e_set_led(1,1);
-//		}else{// if red isn't visible and no true values it will turn left
-//			e_destroy_agenda(turn);
-//			e_set_speed_left (0);
-//			e_set_speed_right(0);
-//			e_set_led(2,1);
-//		}
-//	}
-//}
+char fbwbuffer[160];
 
-void p6_cha_cha() {
-    
+void load_image() {
+	e_poxxxx_launch_capture((char *)fbwbuffer);
+
+    while(!e_poxxxx_is_img_ready()) {};
 }
 
-void p6_criss_cross() {
-    //e_set_led(0);
-    e_set_body_led(1);
-    e_set_speed(0, -500); // Spin Right
-//    long i;
-//    for(i=0; i<4000000; i++) {asm("nop");}
+// Load the image, then return an array of black and white pixels
+int * get_black_and_white_image() {
+    load_image();
     
-//    delay(1000); // Wait
-    e_set_speed(0, 0); // Stop Spin
-//    delay(5000);
-    e_set_body_led(1);
-//    e_set_speed(0, -1000); // Spin Right
-    delay(5);
+	long i;
+    int pixelCount = 80; // 80 pixels, not sure where this number is coming from
+    int blackAndWhiteImage[pixelCount];
+
+	for (i = 0; i < pixelCount; i++) {
+        int green, red, blue, total;
     
+    	red = (fbwbuffer[2 * i] & 0xF8);
+		green = (((fbwbuffer[2 * i] & 0x07) << 5) | ((fbwbuffer[2 * i + 1] & 0xE0) >> 3));
+		blue = ((fbwbuffer[2 * i + 1] & 0x1F) << 3);
+		
+        total = red + green + blue;
+        blackAndWhiteImage[i] = total / 3; // a value between 0 and 1
+	}
+    
+    return blackAndWhiteImage;
 }
 
-void p6_slide_to_the(bool direction) {
+int is_mostly_black(int * blackAndWhiteImage) {
+    long i;
+    long pixelCount = sizeof(blackAndWhiteImage);
+    long totalBrightness = 0;
     
+    for (i = 0; i < pixelCount; i++) {
+        totalBrightness += blackAndWhiteImage[i];
+    }
+    
+    if(totalBrightness / pixelCount > 0.5) {
+        return 1;
+    }
+    
+    return 0;
 }
 
-void p6_run() {
-//    e_activate_agenda(p6_criss_cross, 2500);
-    p6_criss_cross();
-
-    while (1) {
+void p6_run(void) {
+	while(1) {
+        int * blackAndWhiteImage = get_black_and_white_image();
+        int ledValue = is_mostly_black(blackAndWhiteImage);
+        
+        e_set_body_led(ledValue);
     }
 }
 
