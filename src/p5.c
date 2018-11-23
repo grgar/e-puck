@@ -1,5 +1,7 @@
 #include <stdlib.h>
+#include <math.h>
 #include <a_d/advance_ad_scan/e_prox.h>
+#include <a_d/advance_ad_scan/e_acc.h>
 #include <motor_led/advance_one_timer/fast_agenda/e_led.h>
 #include <motor_led/advance_one_timer/fast_agenda/e_motors.h>
 #include <motor_led/advance_one_timer/fast_agenda/e_agenda_fast.h>
@@ -9,6 +11,13 @@
 char camera[160]; //Camera information
 int target_pixel[160]; //Is pixel target?
 int target_visible = 0; //Is target visible?
+double goalxaxis; //x and y axis of goal
+double goalyaxis;
+double xaxis = 0; //x and y axis of e-puck
+double yaxis = 0;
+double g_euc_dist; //straight line distance from the e-puck to goal
+float x_angle; //angle of e-puck orientation compared to the x axis
+float g_angle; //angle of e-puck orientation compared goal
 
 //move forward
 void p5_forward(void){
@@ -28,9 +37,7 @@ void p5_right(void){
 //capture the image
 void p5_get_image(){
 	e_poxxxx_launch_capture((char *)camera);
-    e_set_led(7,1);
     while(!e_poxxxx_is_img_ready()){};
-    e_set_led(6,1);
 }
 
 //Test each pixel for target
@@ -46,7 +53,7 @@ void p5_analyse_image(){
 		green = (((camera[i] & 0x07) << 5) | ((camera[i+1] & 0xE0) >> 3));
 		blue = ((camera[i+1] & 0x1F) << 3);
         
-		if(red - 20 > ((green + blue)/2)){
+		if(red - 25 > ((green + blue)/2)){
 			target_pixel[i] = 1;
             target_visible = 1;
 		}else{
@@ -61,6 +68,10 @@ void target_not_visible() {
 
 //turn based on if the target is to the left or right
 void p5_follow_target(){
+
+    //p5_get_image();
+	//p5_analyse_image();
+
     if(target_visible == 1){ //If the target is not visible do some plan oriented behaviour 
         int left = 0;
         int right = 0;
@@ -87,7 +98,15 @@ void p5_follow_target(){
     }
 }
 
-int count_xaxis() {
+void euc_distance_from_goal() {
+    g_euc_dist = sqrt(( goalxaxis - xaxis)*(goalxaxis - xaxis) + (goalyaxis - yaxis)*(goalyaxis - yaxis));
+}
+
+void goal_angle() {
+    
+}
+
+void count_xaxis() {
     
 }
 
@@ -96,9 +115,12 @@ void count_yaxis() {
 }
 
 void p5_run() {
-    e_activate_agenda(p5_get_image, 500);
-    
-    e_activate_agenda(p5_follow_target, 500);
+    //Camera Set Up
+    //e_poxxxx_init_cam();
+	//e_poxxxx_config_cam(0,(ARRAY_HEIGHT - 4)/2,640,4,8,4,RGB_565_MODE);
+	//e_poxxxx_write_cam_registers();
+        
+    e_activate_agenda(e_display_angle, 500);
     while(1) {
     }
 }
