@@ -117,6 +117,7 @@
       <compileType>
         <linkerTool>
           <linkerLibItems>
+            <linkerLibFileItem>library/uart/dist/default/production/uart.a</linkerLibFileItem>
           </linkerLibItems>
         </linkerTool>
         <archiverTool>
