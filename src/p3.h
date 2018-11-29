@@ -3,7 +3,6 @@
 
 void p3_run();
 void p3_sense();
-int p3_average_light(int postion);
-int p3_tolerance(int position);
+void p3_move_if_light();
 
 #endif
