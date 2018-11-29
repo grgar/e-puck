@@ -52,27 +52,27 @@ int p3_any_sensor_on() {
     return 0;
 }
 
-void p3_move_if_light() {
+void p3_move_if_light(int speed) {
     int i;
     //if both front sensors 'on', move forward at speed 1000
     if ((p3_sensors[0] > p3_tolerance(0)) && (p3_sensors[7] > p3_tolerance(7))) {
-        e_set_speed(1000, 0);
+        e_set_speed(speed, 0);
     }
 
 
     //Gives s3 priority over s2 and s2 over s1, s1 over s0
     if (p3_sensors[3] > p3_tolerance(3)) {
-        e_set_speed(0, -1000);
+        e_set_speed(0, -speed);
     } else {
         if (p3_sensors[2] > p3_tolerance(2)) {
-            e_set_speed(0, -1000);
+            e_set_speed(0, -speed);
         } else {
 
             if (p3_sensors[1] > p3_tolerance(1)) {
                 e_set_speed(800, -200);
             } else {
                 if (p3_sensors[0] > p3_tolerance(0)) {
-                    e_set_speed(1000, 0);
+                    e_set_speed(speed, 0);
                 }
             }
         }
@@ -81,16 +81,16 @@ void p3_move_if_light() {
 
     //Gives s4 priority over s5 and s5 over s6, s6 over s7
     if (p3_sensors[4] > p3_tolerance(4)) {
-        e_set_speed(0, 1000);
+        e_set_speed(0, speed);
     } else {
         if (p3_sensors[5] > p3_tolerance(5)) {
-            e_set_speed(0, 1000);
+            e_set_speed(0, speed);
         } else {
             if (p3_sensors[6] > p3_tolerance(6)) {
                 e_set_speed(800, 200);
             } else {
                 if (p3_sensors[7] > p3_tolerance(7)) {
-                    e_set_speed(1000, 0);
+                    e_set_speed(speed, 0);
                 }
             }
         }
@@ -125,13 +125,14 @@ void p3_move_if_light() {
 
 void p3_run() {
     e_activate_agenda(p3_sense, 1000);
+    int speed = 1000;
     while (1) {
 
         //if no sensors on, don't move
         if (p3_any_sensor_on() == 0) {
             e_set_speed(0, 0);
         } else {
-            p3_move_if_light();
+            p3_move_if_light(speed);
         }
 
 
