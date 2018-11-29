@@ -3,6 +3,7 @@
 #include <motor_led/advance_one_timer/fast_agenda/e_led.h>
 #include <motor_led/advance_one_timer/fast_agenda/e_motors.h>
 #include <motor_led/advance_one_timer/fast_agenda/e_agenda_fast.h>
+#include <string.h>
 #include "common.h"
 
 typedef struct {
@@ -18,9 +19,19 @@ p1_IR p1_ir = {.val =
 
 void p1_sense() {
     int i;
+    int val[8] = {0};
     for (i = 0; i < 8; i++) {
-        p1_ir.val[i] = max(100 - (min(e_get_calibrated_prox(i), 3000) / 30), 0);
+        val[i] = max(100 - (min(e_get_calibrated_prox(i), 3000) / 30), 0);
     }
+    for (i = 0; i < 8; i++) {
+        if (val[i] < 80 && min(val[(i + 2) % 8] < 80, val[(i + 3) % 8] < 80)) {
+            val[(i + 1) % 8] = 80;
+            if (val[(i + 3) % 8] < val[(i + 2) % 8]) {
+                val[(i + 2) % 8] = 80;
+            }
+        }
+    }
+    memcpy(p1_ir.val, val, sizeof(val));
     p1_ir.front = min(p1_ir.val[0], p1_ir.val[7]);
 }
 
