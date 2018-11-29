@@ -113,9 +113,8 @@ p1_V p1_startup_torque(p1_V v) {
         return v;
     }
     int steps = abs(e_get_steps_left() + e_get_steps_right());
-    if (steps < 50) {
-        v.speed = min(v.speed, (steps + 10) * 5);
-        v.direction = between(v.direction, -10, 10);
+    if (steps < 10) {
+        v.speed = min(v.speed, steps + 100);
     } else {
         p1_startup_complete = 1;
     }
@@ -140,7 +139,7 @@ void p1_obstacle() {
     v = p1_obstacle_surrounded(v);
     
     // Reduce instant torque on startup
-    //v = p1_startup_torque(v);
+    v = p1_startup_torque(v);
     
     p1_v = v;
 }
