@@ -8,11 +8,14 @@
 //present in that direction. It will consequently move towards the 
 //light cautiously as it is infatuated with it.
 
-//Array for all of the Sensor Values
+/**
+ * Array for all of the Sensor Values
+ */
 int p3_sensors[8] = {0};
 
-//Gets the value of each sensor
-
+/**
+ * Sets p3_sensors to the value of each sensor
+ */
 void p3_sense() {
     int i;
     for (i = 0; i < 8; i++) {
@@ -20,8 +23,11 @@ void p3_sense() {
     }
 }
 
-//Finds the average light reading for the sensors
-
+/**
+ * Finds the average light reading for the sensors
+ * @param position to get value for
+ * @return light value
+ */
 int p3_average_light(int position) {
     int i;
     int sum = 0;
@@ -34,14 +40,19 @@ int p3_average_light(int position) {
     return sum / 7;
 }
 
-//Adds a small amount to average light for tolerance
-
+/**
+ * Adds a small amount to average light for tolerance
+ * @param position to check
+ * @return new light value for position
+ */
 int p3_tolerance(int position) {
     return p3_average_light(position) + 35;
 }
 
-//Checks to see if any sensor is over the threshold for sensed light
-
+/**
+ * Checks to see if any sensor is over the threshold for sensed light
+ * @return 1 if any sensor on, otherwise 0
+ */
 int p3_any_sensor_on() {
     int i;
     for (i = 0; i < 8; i++) {
@@ -121,8 +132,9 @@ void p3_move_if_light(int speed) {
     }
 }
 
-//Main run function for p3
-
+/**
+ * Main run function for p3
+ */
 void p3_run() {
     e_activate_agenda(p3_sense, 1000);
     int speed = 1000;
