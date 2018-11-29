@@ -48,17 +48,9 @@ int p3_any_sensor_on() {
     return 0;
 }
 
-//Main run function for p3
-void p3_run() {
-    e_activate_agenda(p3_sense, 1000);
-    while (1) {
-        
-        //if no sensors on, don't move
-        int i;
-        if (p3_any_sensor_on() == 0) {
-            e_set_speed(0, 0);
-        } else {
-            //if both front sensors 'on', move forward at speed 1000
+void p3_move_if_light(){
+    int i;
+    //if both front sensors 'on', move forward at speed 1000
             if ((p3_sensors[0] > p3_tolerance(0)) && (p3_sensors[7] > p3_tolerance(7))) {
                 e_set_speed(1000, 0);
             }
@@ -94,7 +86,7 @@ void p3_run() {
                         e_set_speed(800, 200);
                     } else {
                         if (p3_sensors[7] > p3_tolerance(7)) {
-                            e_set_speed(1000, 0);
+                            e_set_speed(1000, 0); 
                         }
                     }
                 }
@@ -123,6 +115,18 @@ void p3_run() {
                         break;
                 }
             }
+}
+
+//Main run function for p3
+void p3_run() {
+    e_activate_agenda(p3_sense, 1000);
+    while (1) {
+        
+        //if no sensors on, don't move
+        if (p3_any_sensor_on() == 0) {
+            e_set_speed(0, 0);
+        } else {
+            p3_move_if_light();
         }
 
 
