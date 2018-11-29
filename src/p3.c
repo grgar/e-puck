@@ -3,6 +3,10 @@
 #include "common.h"
 #include "motor_led/advance_one_timer/fast_agenda/e_agenda_fast.h"
 #include "a_d/advance_ad_scan/e_prox.h"
+//Love: The robot will take sensor inputs from all directions. When
+//one of these values is above average, it knows there is a light
+//present in that direction. It will consequently move towards the 
+//light cautiously as it is infatuated with it.
 
 //Array for all of the Sensor Values
 int p3_sensors[8] = {0};

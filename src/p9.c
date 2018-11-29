@@ -3,6 +3,11 @@
 #include "common.h"
 #include "motor_led/advance_one_timer/fast_agenda/e_agenda_fast.h"
 #include "a_d/advance_ad_scan/e_prox.h"
+//Fear: The robot will take sensor inputs from all directions. When
+//one of these values is above average, it knows there is a light
+//present in that direction. It will consequently move away from
+//the light as quickly as possible.
+
 
 //Array for all of the Sensor Values
 int p9_sensors[8] = {0};
