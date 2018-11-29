@@ -31,7 +31,7 @@ void p1_sense() {
             }
         }
     }
-    memcpy(p1_ir.val, val, sizeof(val));
+    memcpy(p1_ir.val, val, sizeof val);
     p1_ir.front = min(p1_ir.val[0], p1_ir.val[7]);
 }
 
@@ -132,7 +132,7 @@ p1_V p1_startup_torque(p1_V v) {
     return v;
 }
 
-void p1_obstacle() {
+p1_V p1_obstacle() {
     p1_V v;
     v.speed = 1000;
     v.direction = 0;
@@ -148,17 +148,21 @@ void p1_obstacle() {
 
     // Avoid panic
     v = p1_obstacle_surrounded(v);
-    
+
     // Reduce instant torque on startup
     v = p1_startup_torque(v);
-    
-    p1_v = v;
+
+    return v;
+}
+
+void p1_obstacle_run() {
+    p1_v = p1_obstacle();
 }
 
 void p1_run() {
     e_activate_agenda(p1_sense, 500);
     e_activate_agenda(p1_drive, 500);
-    e_activate_agenda(p1_obstacle, 500);
+    e_activate_agenda(p1_obstacle_run, 500);
     while (1) {
     }
 }

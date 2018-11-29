@@ -65,8 +65,6 @@
         </logicalFolder>
         <itemPath>library/motor_led/e_init_port.c</itemPath>
       </logicalFolder>
-      <logicalFolder name="uart" displayName="uart" projectFiles="true">
-      </logicalFolder>
       <logicalFolder name="utility" displayName="utility" projectFiles="true">
         <itemPath>library/utility/utility.c</itemPath>
       </logicalFolder>
