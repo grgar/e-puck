@@ -16,10 +16,10 @@ typedef int bool;
 #define true 1
 #define false 0
 
-char fbwbuffer[160];
+char buffer[2*40*40];
 
 void load_image() {
-	e_poxxxx_launch_capture((char *)fbwbuffer);
+	e_poxxxx_launch_capture(buffer);
 
     while(!e_poxxxx_is_img_ready()) {};
 }
@@ -29,15 +29,15 @@ int * get_black_and_white_image() {
     load_image();
     
 	long i;
-    int pixelCount = 80; // 80 pixels, not sure where this number is coming from
+    int pixelCount = 2*40*40; // 2 bytes per pixel, 40x40 pixels
     int blackAndWhiteImage[pixelCount];
 
 	for (i = 0; i < pixelCount; i++) {
         int green, red, blue, total;
     
-    	red = (fbwbuffer[2 * i] & 0xF8);
-		green = (((fbwbuffer[2 * i] & 0x07) << 5) | ((fbwbuffer[2 * i + 1] & 0xE0) >> 3));
-		blue = ((fbwbuffer[2 * i + 1] & 0x1F) << 3);
+    	red = (buffer[2 * i] & 0xF8);
+		green = (((buffer[2 * i] & 0x07) << 5) | ((buffer[2 * i + 1] & 0xE0) >> 3));
+		blue = ((buffer[2 * i + 1] & 0x1F) << 3);
 		
         total = red + green + blue;
         blackAndWhiteImage[i] = total / 3; // a value between 0 and 1
@@ -55,7 +55,7 @@ int is_mostly_black(int * blackAndWhiteImage) {
         totalBrightness += blackAndWhiteImage[i];
     }
     
-    if(totalBrightness / pixelCount > 0.5) {
+    if (totalBrightness / pixelCount > 0.5) {
         return 1;
     }
     
@@ -63,7 +63,7 @@ int is_mostly_black(int * blackAndWhiteImage) {
 }
 
 void p6_run(void) {
-	while(1) {
+	while (1) {
         int * blackAndWhiteImage = get_black_and_white_image();
         int ledValue = is_mostly_black(blackAndWhiteImage);
         

@@ -4,3 +4,5 @@ dist/
 debug/
 **/nbproject/Makefile-*
 **/nbproject/Package-default.bash
+.DS_Store
+
