@@ -5,6 +5,7 @@
 #include <motor_led/advance_one_timer/fast_agenda/e_agenda_fast.h>
 #include <uart/e_uart_char.h>
 #include <camera/fast_2_timer/e_poxxxx.h>
+#include <a_d/advance_ad_scan/e_prox.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -17,10 +18,9 @@ typedef int bool;
 #define true 1
 #define false 0
 
-// TODO: Move to common (this is George's code)
 typedef struct {
     /**
-     * IR percentages, 100% clear, 0% blocked
+     * IR percentages as integers between 0 (blocked) and 100 (clear)
      */
     int val[8];
 } p6_IR;
@@ -34,19 +34,10 @@ void p6_sense() {
     int val[8] = {0};
 
     for (i = 0; i < 8; i++) {
-        val[i] = max(100 - (min(e_get_calibrated_prox(i), 3000) / 30), 0);
+        val[i] = max(100 - (min(e_get_calibrated_prox(i), 3000) / 30), 0); // Normalise between 0 and 100
     }
-
-    for (i = 0; i < 8; i++) {
-        if (val[i] < 80 && min(val[(i + 2) % 8] < 80, val[(i + 3) % 8] < 80)) {
-            val[(i + 1) % 8] = 80;
-            if (val[(i + 3) % 8] < val[(i + 2) % 8]) {
-                val[(i + 2) % 8] = 80;
-            }
-        }
-    }
-
-    memcpy(p1_ir.val, val, sizeof val);
+    
+    memcpy(p6_ir.val, val, sizeof val);
 }
 
 void p6_drive() {
@@ -62,14 +53,24 @@ int p6_get_steps() {
 }
 
 bool p6_is_gap() {
-    int DISTANCE_THRESHOLD = 0.5; // How far away we should consider "a gap"
+    int DISTANCE_THRESHOLD = 80; // How far away we should consider "a gap"
+    bool isGap = p6_ir.val[5] >= DISTANCE_THRESHOLD;
     
-    return p6_IR[5] >= DISTANCE_THRESHOLD;
+    char message5[15];
+    sprintf(message5, "checking!\n\r");
+    e_send_uart1_char(message5, strlen(message5));
+//    
+//    int val = p6_ir.val[5];
+    char message4[30];
+    sprintf(message4, "%d\n\r", e_get_calibrated_prox(5));
+    e_send_uart1_char(message4, strlen(message4));
+    
+    return isGap;
 }
 
 bool p6_is_big_gap() {
     int gapStart = p6_get_steps();
-    int MINIMUM_GAP_SIZE = 1000;
+    int MINIMUM_GAP_SIZE = 2000;
     
     while (1) {
         bool isEndOfGap = !p6_is_gap();
@@ -80,6 +81,10 @@ bool p6_is_big_gap() {
         
         int currentGapSize = p6_get_steps();
         int gapSize = currentGapSize - gapStart;
+        
+        char message3[100];
+        sprintf(message3, "Gap Start: %d, Current Gap Size: %d, FINAL GAP SIZE: %d\n\r", gapStart, currentGapSize, gapSize);
+        e_send_uart1_char(message3, strlen(message3));
         
         if (gapSize >= MINIMUM_GAP_SIZE) {
             return true;
