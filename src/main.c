@@ -107,10 +107,6 @@ int main(void) {
     e_configure_timer(0);
     e_start_timer_processing(0);
     
-	e_poxxxx_init_cam();
-	e_poxxxx_config_cam((ARRAY_WIDTH - 160) / 2,(ARRAY_HEIGHT - 160) / 2, 160, 160, 4, 4, RGB_565_MODE));
-	e_poxxxx_write_cam_registers(); 
-    
     // No agenda functions should be added to the queue yet
     e_start_agendas_processing();
 

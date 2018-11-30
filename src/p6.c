@@ -11,63 +11,47 @@
 #include "stdlib.h"
 
 #include "./p6.h"
+#include <e_uart_char.h>
 
 typedef int bool;
 #define true 1
 #define false 0
 
-char buffer[2*40*40];
-
-void load_image() {
-	e_poxxxx_launch_capture(buffer);
-
-    while(!e_poxxxx_is_img_ready()) {};
+void p6_drive() {
+    e_set_speed(1000, 0);
 }
 
-// Load the image, then return an array of black and white pixels
-int * get_black_and_white_image() {
-    load_image();
-    
-	long i;
-    int pixelCount = 2*40*40; // 2 bytes per pixel, 40x40 pixels
-    int blackAndWhiteImage[pixelCount];
-
-	for (i = 0; i < pixelCount; i++) {
-        int green, red, blue, total;
-    
-    	red = (buffer[2 * i] & 0xF8);
-		green = (((buffer[2 * i] & 0x07) << 5) | ((buffer[2 * i + 1] & 0xE0) >> 3));
-		blue = ((buffer[2 * i + 1] & 0x1F) << 3);
-		
-        total = red + green + blue;
-        blackAndWhiteImage[i] = total / 3; // a value between 0 and 1
-	}
-    
-    return blackAndWhiteImage;
+void p6_stop() {
+    e_set_speed(0, 0);
 }
 
-int is_mostly_black(int * blackAndWhiteImage) {
-    long i;
-    long pixelCount = sizeof(blackAndWhiteImage);
-    long totalBrightness = 0;
+void p6_consider_stopping() {
+    int steps = abs(e_get_steps_left() + e_get_steps_right());
+   
+    e_init_uart1();
+    char data[4] = "In\n";
+    e_send_uart1_char(data, 4);
+        
+    e_init_uart1();
+    char message[50];
+    sprintf(message, "This is a test: %d\n", steps);
+    e_send_uart1_char(message, strlen(message));
     
-    for (i = 0; i < pixelCount; i++) {
-        totalBrightness += blackAndWhiteImage[i];
+    if (steps > 1000) {
+        e_init_uart1();
+        char data[7] = "hello\n";
+        e_send_uart1_char(data, 7);
+
+        p6_stop();
     }
-    
-    if (totalBrightness / pixelCount > 0.5) {
-        return 1;
-    }
-    
-    return 0;
 }
 
 void p6_run(void) {
+    p6_drive();
+    
+    e_activate_agenda(p6_consider_stopping, 500);
+    
 	while (1) {
-        int * blackAndWhiteImage = get_black_and_white_image();
-        int ledValue = is_mostly_black(blackAndWhiteImage);
-        
-        e_set_body_led(ledValue);
     }
 }
 
