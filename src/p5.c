@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #include <a_d/advance_ad_scan/e_prox.h>
 #include <a_d/advance_ad_scan/e_acc.h>
@@ -8,10 +9,11 @@
 #include "camera/fast_2_timer/e_poxxxx.h"
 #include "common.h"
 
-#define AXLE_SIZE 5.0
-#define WHEEL_DIAMETER 4.0
+#include "p1.h"
+
+#define WHEEL_GAP 5.3 //cm
+#define WHEEL_DIAMETER 4.0 //cm
 #define PI 3.141592
-#define TURN_STRENGTH 100
 
 //Camera values
 char camera[160]; //Camera information
@@ -22,14 +24,14 @@ int target_visible = 0; //Is target visible?
 double goalxaxis; //x and y axis of goal
 double goalyaxis;
 double g_dist; //straight line distance from the e-puck to goal
-float g_angle; //angle of e-puck orientation compared goal
+double g_angle; //angle of e-puck orientation compared goal
 
 //e-puck metrics
-double xaxis = 0.0; //x and y axis of e-puck
-double yaxis = 0.0;
+float xaxis = 0.0; //x and y axis of e-puck
+float yaxis = 0.0;
 int stepsL;//Motor steps from left and right motor
 int stepsR;
-float x_angle = 0.0; //angle of e-puck orientation compared to the x axis
+double x_angle = 0.0; //angle of e-puck orientation compared to the x axis
 
 //Camera functions
 //capture the image
@@ -103,26 +105,34 @@ void compute_metrics(){
     int stepsLlatest = e_get_steps_left();
     int stepsRlatest = e_get_steps_right();
     //Get motor distance
-    double distL = (stepsLlatest / 1000.0) * (WHEEL_DIAMETER * PI);
-    double distR = (stepsRlatest / 1000.0) * (WHEEL_DIAMETER * PI);
-    double total_dist = (distL + distR) / 2;
-    float angle_adj = (distR - distL)*2 / AXLE_SIZE;
+    float distL = ((stepsLlatest - stepsL) / 1000.0) * (WHEEL_DIAMETER * PI);
+    float distR = ((stepsRlatest - stepsR) / 1000.0) * (WHEEL_DIAMETER * PI);
+    float total_dist = (distL + distR) / 2;
+    double angle_adj = ((distR - distL) * 180.0) / (WHEEL_GAP * PI);
     
     //Adjust the angle of the e-puck with respect to the x axis
     x_angle = x_angle + angle_adj;
+    
+    //Make sure the e-puck doesn't turn more than it needs to
+    if(x_angle > 180) {
+        x_angle = x_angle - 360;
+    } else if(x_angle < -180) {
+        x_angle = x_angle + 360;
+    }
     
     //Get the coordinates of the e-puck
     xaxis = xaxis + (total_dist * cos(x_angle));
     yaxis = yaxis + (total_dist * sin(x_angle));
     
     //Get the angle of the goal with respect to the e-puck
-    g_angle = atanf((goalyaxis - yaxis)/(goalxaxis - xaxis));
+    g_angle = atanf((goalxaxis - xaxis)/(goalyaxis - yaxis));
     
     //Calculate the straight line distance between e-puck and the goal
-    g_dist = sqrt((goalxaxis - xaxis)*(goalxaxis - xaxis) + (goalyaxis - yaxis)*(goalxaxis - xaxis));
+    g_dist = sqrt(((goalxaxis - xaxis)*(goalxaxis - xaxis)) + ((goalyaxis - yaxis)*(goalxaxis - xaxis)));
     
-    e_set_steps_left(0);
-    e_set_steps_right(0);
+    //Re-calibrate steps
+    stepsL = stepsLlatest;
+    stepsR = stepsRlatest;
 }
 
 //Set goal coordinates
@@ -132,21 +142,25 @@ void p5_set_goal(int x, int y) {
 }
 
 //Move towards goal coordinates x and y
-void p5_move_towards_goal() {
-    compute_metrics(); //update position data
+void p5_move_towards_goal() {    
+    int angle = g_angle - x_angle;
+    int turn = angle;
     
-    float turning = ((g_angle - x_angle)/ 2*PI) * TURN_STRENGTH;
-    e_set_speed(0, turning);
+    if(angle > 30) turn = 50;
+    if(angle < -30) turn = -50;
+    if(angle < 0) turn = turn*2;
+    
+    e_set_speed(500, turn);
 }
 
 void p5_run() {
-    //Camera Set Up
-    //e_poxxxx_init_cam();
-	//e_poxxxx_config_cam(0,(ARRAY_HEIGHT - 4)/2,640,4,8,4,RGB_565_MODE);
-	//e_poxxxx_write_cam_registers();
+    e_set_steps_left(0);
+    e_set_steps_right(0);
         
-    p5_set_goal(20, 20);
-    e_activate_agenda(p5_move_towards_goal, 500);
+    p5_set_goal(50, 50);
+    e_activate_agenda(compute_metrics, 250);
+    e_activate_agenda(p5_move_towards_goal, 250);
+    //p1_run();
     while(1) {
     }
 }
