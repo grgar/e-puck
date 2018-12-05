@@ -13,6 +13,8 @@
 #include <motor_led/e_epuck_ports.h>
 #include <a_d/advance_ad_scan/e_prox.h>
 #include <a_d/advance_ad_scan/e_ad_conv.h>
+#include <e_uart_char.h>
+#include <camera/fast_2_timer/e_poxxxx.h>
 
 #include "p1.h"
 #include "p2.h"
@@ -94,6 +96,13 @@ int main(void) {
     // so unfortunately it's not possible to lateinit
     e_calibrate_ir();
 
+    // camera set up to take a 1 pixel image in the centre of the camera
+	e_poxxxx_init_cam();
+	//This gets a 4x4 image at the center of the camera and samples it to a single pixel
+	e_poxxxx_config_cam((ARRAY_WIDTH - 4)/2,(ARRAY_HEIGHT - 4)/2,4,4,4,4,RGB_565_MODE);
+	e_poxxxx_set_mirror(1,1);
+	e_poxxxx_write_cam_registers(); 
+    
     // Configure timer 1, 2, 3 on e-puck
     e_configure_timer(0);
     e_start_timer_processing(0);

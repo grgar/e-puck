@@ -1,6 +1,9 @@
-#include <common.h>
+#include "common.h"
 #include "p1.h"
 #include <motor_led/advance_one_timer/fast_agenda/e_motors.h>
+#include <a_d/advance_ad_scan/e_prox.h>
+#include <a_d/advance_ad_scan/e_acc.h>
+
 #include <motor_led/advance_one_timer/fast_agenda/e_agenda_fast.h>
 #include <e_uart_char.h>
 #include <camera/fast_2_timer/e_poxxxx.h>
@@ -8,12 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-char fbwbuffer[160];
-int numbuffer[80];
-long isRedVisible;
-
-char hexbuffer[1*2];
+#include <math.h>
 
 void p4_led_on(){
     int i;
@@ -28,76 +26,144 @@ void p4_led_off(){
         e_set_led(i,0);
     }
 }
-//custom cam picture load
-void getImage(){
-	e_poxxxx_launch_capture((char *)fbwbuffer);
-    while(!e_poxxxx_is_img_ready()){};
-}
-// Image processing removes useless information
-void Image(){	
-	long i;
-	int green, red, vis;
-	for(i=0; i<80; i++){
-		//RGB turned into an integer value for comparison
-		red = (fbwbuffer[2*i] & 0xF8);
-		green = (((fbwbuffer[2*i] & 0x07) << 5) | ((fbwbuffer[2*i+1] & 0xE0) >> 3));
-		//blue = ((fbwbuffer[2*i+1] & 0x1F) << 3); we don't need blue for looking for red.
-		if(red > green + 5){ // green will be less then red when red is strong.
-			numbuffer[i] = 1;
-			vis++;
-		}else{
-			numbuffer[i] = 0;
-		}
-		//If red is visable then isRedVisable turns to true
-		if(vis>0){
-			isRedVisible = 1;
-            p4_led_off();
-		}else{
-			isRedVisible = 0;
-            p4_led_on();
-		}
-	}	
+
+typedef struct {
+    /**
+     * IR percentages, 100% clear, 0% blocked
+     */
+    int val[8];
+    int front;
+} p4_IR;
+
+p4_IR p4_ir = {.val = {0}, .front = 0};
+
+
+void p4_hug_ir(){
+    int val[8] = {0};
+    int i;
+    for(i=0;i<8;i++){
+        val[i] = max(100 - (min(e_get_calibrated_prox(i), 3000) / 30), 0);
+    }
+    for (i = 0; i < 8; i++) {
+        if (val[i] < 80 && min(val[(i + 2) % 8] < 80, val[(i + 3) % 8] < 80)) {
+            val[(i + 1) % 8] = 80;
+            if (val[(i + 3) % 8] < val[(i + 2) % 8]) {
+                val[(i + 2) % 8] = 80;
+            }
+        }
+    }
+    memcpy(p4_ir.val, val, sizeof val);
+    p4_ir.front = min(p4_ir.val[0], p4_ir.val[7]);
 }
 
-//Decide which way to turn.
-int turnDirection(){
-	int sumL = 0;
-	int sumR = 0;
-	int i;
-	for(i=0;i<40;i++){
-		sumL += numbuffer[i];
-		sumR += numbuffer[i+40];
-	}
-	if(sumL<sumR){ 
-		return 1;
-	}else{
-		return 0;
-	}
+
+typedef struct {
+    int speed;
+    int direction;
+} p4_V;
+
+p4_V p4_v = {.speed = 0, .direction = 0};
+
+
+void p4_forward_one_step(){
+    p4_v.speed = 600;
+    p4_v.direction = 0;
 }
-//Function to deal with turning.
-void turn(void) {
-	if(turnDirection()){
-		e_set_speed_left (500);
-		e_set_speed_right(-500);
-	}else{
-		e_set_speed_left (-500);
-		e_set_speed_right(500);
-	}
+
+void p4_back_one_step(){
+    p4_v.speed = -600;
+    p4_v.direction = 0;
+}
+
+void p4_stop(){
+    p4_v.speed = 0;
+    p4_v.direction = 0;
+}
+
+void p4_right_one_step(){
+    p4_v.speed = 0;
+    p4_v.direction = -600;
+}
+void p4_left_one_step(){
+    p4_v.speed = 0;
+    p4_v.direction = 600;
+}
+
+
+void moving(){
+    int mode = 0;
+    int steps = (abs(e_get_steps_right()) + abs(e_get_steps_left()));
+    if(steps > 600){
+        mode = 1;
+    }
+    if(steps > 635){
+        mode = 2;
+    }
+    if(steps > 2550){
+        mode = 3;
+    }
+    switch (mode){
+        case 0:
+            p4_left_one_step();
+            break;
+        case 1:
+            p4_forward_one_step();
+            break;
+        case 2:
+            p4_right_one_step();
+            break;
+        case 3: 
+            p4_stop();
+            break;
+    }
+    e_set_speed(p4_v.speed, p4_v.direction);
+}
+
+void p4_turning(){
+    p4_v.speed = 0;
+    p4_v.direction = 100;
+    e_set_speed(p4_v.speed, p4_v.direction);
+}
+
+void p4_forward(){
+    p4_v.speed = 300;
+    p4_v.direction = 0;
+    e_set_speed(p4_v.speed, p4_v.direction);
+}
+
+void p4_hug_wall_motor_set(){
+    p4_hug_ir();
+    int i;
+    
+    //if sides and front of e-puck are clear
+    p4_forward();
+    p4_led_off();
+    
+    
+    for(i=1;i<7;i++){
+        //if both the sides and front have an object in front of them
+        if((p4_ir.val[i] < 100)){
+            p4_turning();
+            p4_led_off();
+        } 
+        //if the front is not clear but sides clear
+        if((p4_ir.front < 100) & (p4_ir.val[i] < 100)){
+            e_pause_agenda(p4_hug_wall_motor_set);
+            e_activate_agenda(moving, 500);
+            e_destroy_agenda(moving);
+            e_restart_agenda(p4_hug_wall_motor_set);
+            p4_led_on();
+        }
+    }
 }
 
 void p4_run() {
     
-    // camera set up to take a 1 pixel image in the centre of the camera
-	e_poxxxx_init_cam();
-	//This gets a 4x4 image at the center of the camera and samples it to a single pixel
-	e_poxxxx_config_cam((ARRAY_WIDTH - 4)/2,(ARRAY_HEIGHT - 4)/2,4,4,4,4,RGB_565_MODE);
-	e_poxxxx_set_mirror(1,1);
-	e_poxxxx_write_cam_registers(); 
+   
 	//Capture image function
-	getImage();
+	
 	//Print image to terminal
-	p4_led_on();
     
-    while(1){}
+    e_activate_agenda(p4_hug_wall_motor_set, 500);
     
 }
