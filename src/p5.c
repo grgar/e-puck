@@ -23,14 +23,14 @@ int target_visible = 0; //Is target visible?
 double goalxaxis; //x and y axis of goal
 double goalyaxis;
 double g_dist; //straight line distance from the e-puck to goal
-double g_angle; //angle of e-puck orientation compared goal
+float g_angle; //angle of e-puck orientation compared goal
 
 //e-puck metrics
 float xaxis = 0.0; //x and y axis of e-puck
 float yaxis = 0.0;
 int stepsL;//Motor steps from left and right motor
 int stepsR;
-double x_angle = 0.0; //angle of e-puck orientation compared to the x axis
+float x_angle = 0.0; //angle of e-puck orientation compared to the x axis
 
 int p5_speed = 500;
 
@@ -109,24 +109,24 @@ void compute_metrics(){
     float distL = ((stepsLlatest - stepsL) / 1000.0) * (WHEEL_DIAMETER * PI);
     float distR = ((stepsRlatest - stepsR) / 1000.0) * (WHEEL_DIAMETER * PI);
     float total_dist = (distL + distR) / 2;
-    double angle_adj = ((distR - distL) * 180.0) / (WHEEL_GAP * PI);
+    float angle_adj = (distR - distL) / WHEEL_GAP ;
     
     //Adjust the angle of the e-puck with respect to the x axis
     x_angle = x_angle + angle_adj;
     
     //Make sure the e-puck doesn't turn more than it needs to
-    if(x_angle > 180) {
-        x_angle = x_angle - 360;
-    } else if(x_angle < -180) {
-        x_angle = x_angle + 360;
+    if(x_angle > PI) {
+        x_angle = x_angle - (2 * PI);
+    } else if(x_angle < -PI) {
+        x_angle = x_angle + (2 * PI);
     }
     
     //Get the coordinates of the e-puck
-    xaxis = xaxis + (total_dist * cos((x_angle * PI)/180.0));
-    yaxis = yaxis + (total_dist * sin((x_angle * PI)/180.0));
+    xaxis = xaxis + (total_dist * cos(x_angle));
+    yaxis = yaxis + (total_dist * sin(x_angle));
     
     //Get the angle of the goal with respect to the e-puck
-    g_angle = atanf((goalxaxis - xaxis)/(goalyaxis - yaxis))* 180.0/PI;
+    g_angle = atanf((goalxaxis - xaxis)/(goalyaxis - yaxis));
     
     //Calculate the straight line distance between e-puck and the goal
     g_dist = sqrt(((goalxaxis - xaxis)*(goalxaxis - xaxis)) + ((goalyaxis - yaxis)*(goalxaxis - xaxis)));
@@ -144,12 +144,11 @@ void p5_set_goal(int x, int y) {
 
 //Move towards goal coordinates x and y
 void p5_move_towards_goal() {    
-    int angle = g_angle - x_angle;
+    int angle = ((g_angle - x_angle) * 180) / PI;
     int turn = angle;
     
     if(angle > 30) turn = 50;
     if(angle < -30) turn = -50;
-    if(angle < 0) turn = turn*2;
     
     e_set_speed(p5_speed, turn);
 }
