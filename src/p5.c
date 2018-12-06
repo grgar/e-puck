@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include <math.h>
 #include <a_d/advance_ad_scan/e_prox.h>
 #include <a_d/advance_ad_scan/e_acc.h>
@@ -32,6 +31,8 @@ float yaxis = 0.0;
 int stepsL;//Motor steps from left and right motor
 int stepsR;
 double x_angle = 0.0; //angle of e-puck orientation compared to the x axis
+
+int p5_speed = 500;
 
 //Camera functions
 //capture the image
@@ -121,11 +122,11 @@ void compute_metrics(){
     }
     
     //Get the coordinates of the e-puck
-    xaxis = xaxis + (total_dist * cos(x_angle));
-    yaxis = yaxis + (total_dist * sin(x_angle));
+    xaxis = xaxis + (total_dist * cos((x_angle * PI)/180.0));
+    yaxis = yaxis + (total_dist * sin((x_angle * PI)/180.0));
     
     //Get the angle of the goal with respect to the e-puck
-    g_angle = atanf((goalxaxis - xaxis)/(goalyaxis - yaxis));
+    g_angle = atanf((goalxaxis - xaxis)/(goalyaxis - yaxis))* 180.0/PI;
     
     //Calculate the straight line distance between e-puck and the goal
     g_dist = sqrt(((goalxaxis - xaxis)*(goalxaxis - xaxis)) + ((goalyaxis - yaxis)*(goalxaxis - xaxis)));
@@ -150,7 +151,7 @@ void p5_move_towards_goal() {
     if(angle < -30) turn = -50;
     if(angle < 0) turn = turn*2;
     
-    e_set_speed(500, turn);
+    e_set_speed(p5_speed, turn);
 }
 
 void p5_run() {
