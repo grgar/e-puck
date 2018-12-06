@@ -14,6 +14,7 @@
       <itemPath>src/p7.h</itemPath>
       <itemPath>src/p8.h</itemPath>
       <itemPath>src/p9.h</itemPath>
+      <itemPath>src/p10.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -79,6 +80,7 @@
       <itemPath>src/p7.c</itemPath>
       <itemPath>src/p9.c</itemPath>
       <itemPath>src/p8.c</itemPath>
+      <itemPath>src/p10.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

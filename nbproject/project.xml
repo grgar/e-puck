@@ -14,7 +14,10 @@
             <make-dep-projects/>
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>Analog</word>
+            <word>lateinit</word>
             <word>nop</word>
+            <word>px</word>
         </spellchecker-wordlist>
     </configuration>
 </project>
