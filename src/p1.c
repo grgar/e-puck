@@ -5,6 +5,7 @@
 #include <motor_led/advance_one_timer/fast_agenda/e_agenda_fast.h>
 #include <string.h>
 #include "common.h"
+#include "p1.h"
 
 typedef struct {
     /**
@@ -34,11 +35,6 @@ void p1_sense() {
     memcpy(p1_ir.val, val, sizeof val);
     p1_ir.front = min(p1_ir.val[0], p1_ir.val[7]);
 }
-
-typedef struct {
-    int speed;
-    int direction;
-} p1_V;
 
 p1_V p1_v = {.speed = 0, .direction = 0};
 
@@ -119,6 +115,7 @@ p1_V p1_obstacle_surrounded(p1_V v) {
 }
 
 int p1_startup_complete = 0;
+
 p1_V p1_startup_torque(p1_V v) {
     if (p1_startup_complete == 1) {
         return v;
@@ -132,11 +129,7 @@ p1_V p1_startup_torque(p1_V v) {
     return v;
 }
 
-p1_V p1_obstacle() {
-    p1_V v;
-    v.speed = 1000;
-    v.direction = 0;
-
+p1_V p1_obstacle(p1_V v) {
     // Cap speed if detected uncertainty
     v = p1_obstacle_uncertainty(v);
 
@@ -156,7 +149,10 @@ p1_V p1_obstacle() {
 }
 
 void p1_obstacle_run() {
-    p1_v = p1_obstacle();
+    p1_V v;
+    v.speed = 1000;
+    v.direction = 0;
+    p1_v = p1_obstacle(v);
 }
 
 void p1_run() {
