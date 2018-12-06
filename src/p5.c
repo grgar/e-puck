@@ -32,8 +32,6 @@ int stepsL;//Motor steps from left and right motor
 int stepsR;
 double x_angle = 0.0; //angle of e-puck orientation compared to the x axis
 
-int p5_speed = 500;
-
 //Camera functions
 //capture the image
 void get_image(){
@@ -143,7 +141,7 @@ void p5_set_goal(int x, int y) {
 }
 
 //Move towards goal coordinates x and y
-void p5_move_towards_goal() {    
+p1_V p5_move_towards_goal() {    
     int angle = g_angle - x_angle;
     int turn = angle;
     
@@ -151,7 +149,13 @@ void p5_move_towards_goal() {
     if(angle < -30) turn = -50;
     if(angle < 0) turn = turn*2;
     
-    e_set_speed(p5_speed, turn);
+    p1_V v = {.speed = 500, .direction = turn};
+    return v;
+}
+
+void p5_move_towards_goal_run() {
+    p1_V v = p5_move_towards_goal();
+    e_set_speed(v.speed, v.direction);
 }
 
 void p5_run() {
@@ -160,7 +164,7 @@ void p5_run() {
         
     p5_set_goal(50, 50);
     e_activate_agenda(compute_metrics, 250);
-    e_activate_agenda(p5_move_towards_goal, 250);
+    e_activate_agenda(p5_move_towards_goal_run, 250);
     //p1_run();
     while(1) {
     }
