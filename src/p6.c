@@ -160,42 +160,42 @@ void p6_straighten_up(int lastKnownDistanceToWall) {
 }
 
 void p6_run(void) {
-    e_init_uart1();
-    e_activate_agenda(p6_sense, 500);
+//    e_init_uart1();
+//    e_activate_agenda(p6_sense, 500);
     
     // TODO: Find wall, use straighten up function, then continue
     
     p6_drive();
     
     // Get the initial distance to the wall, use p6_straighten_up to keep it
-//    int lastKnownDistanceToWall = p6_get_confident_ir_reading(5, 3);
+    // int lastKnownDistanceToWall = p6_get_confident_ir_reading(5, 3);
     
-	while (1) {
-        bool isGap = p6_is_gap();
-
-        // If it's the start of an opening
-        if (isGap) {
-            bool isBigGap = p6_is_big_gap();
-
-            // Stop if it's a big enough gap to fit the ePuck
-            if (isBigGap) {
-                // TODO: Parallel park here, currently just stop.
-                // p6_parallel_park();
-                p6_drive();
-                break;
-            }
-        } else {
-            // TODO: Straighten up here, currently assume user places robot straight;
-            // lastKnownDistanceToWall = p6_straighten_up(lastKnownDistanceToWall);
-        }
-
-        int steps = p6_get_steps();
-
-        // If this is taking too long, stop anyway
-        if (steps > 5000) {
-            p6_stop();
-            break;
-        }
-    }
+//	while (1) {
+//        bool isGap = p6_is_gap();
+//
+//        // If it's the start of an opening
+//        if (isGap) {
+//            bool isBigGap = p6_is_big_gap();
+//
+//            // Stop if it's a big enough gap to fit the ePuck
+//            if (isBigGap) {
+//                // TODO: Parallel park here, currently just stop.
+//                // p6_parallel_park();
+//                p6_drive();
+//                break;
+//            }
+//        } else {
+//            // TODO: Straighten up here, currently assume user places robot straight;
+//            // lastKnownDistanceToWall = p6_straighten_up(lastKnownDistanceToWall);
+//        }
+//
+//        int steps = p6_get_steps();
+//
+//        // If this is taking too long, stop anyway
+//        if (steps > 5000) {
+//            p6_stop();
+//            break;
+//        }
+//    }
 }
 
