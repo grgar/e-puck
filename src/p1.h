@@ -13,5 +13,6 @@ p1_V p1_obstacle(p1_V);
 
 void p1_sense();
 void p1_drive();
+void p1_sense_ir(int val[8]);
 
 #endif

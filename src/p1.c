@@ -18,12 +18,17 @@ typedef struct {
 p1_IR p1_ir = {.val =
     { 0}, .front = 0};
 
-void p1_sense() {
+void p1_sense_ir(int val[8]) {
     int i;
-    int val[8] = {0};
     for (i = 0; i < 8; i++) {
         val[i] = max(100 - (min(e_get_calibrated_prox(i), 3000) / 30), 0);
     }
+}
+
+void p1_sense() {
+    int val[8] = {0};
+    p1_sense_ir(val);
+    int i = 0;
     for (i = 0; i < 8; i++) {
         if (val[i] < 80 && min(val[(i + 2) % 8] < 80, val[(i + 3) % 8] < 80)) {
             val[(i + 1) % 8] = 80;
