@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #include <a_d/advance_ad_scan/e_prox.h>
 #include <a_d/advance_ad_scan/e_acc.h>
@@ -34,82 +35,17 @@ float x_angle = 0.0; //angle of e-puck orientation compared to the x axis
 
 int p5_speed = 500;
 
-//Camera functions
-//capture the image
-void get_image(){
-	e_poxxxx_launch_capture((char *)camera);
-    while(!e_poxxxx_is_img_ready()){};
-}
-
-//Test each pixel for target
-void analyse_image(){
-    int red;
-    int green;
-    int blue;
-    target_visible = 0;
-    int i;
-	for(i = 0; i < 160; i++){
-        //convert colour into integer
-		red = (camera[i] & 0xF8);
-		green = (((camera[i] & 0x07) << 5) | ((camera[i+1] & 0xE0) >> 3));
-		blue = ((camera[i+1] & 0x1F) << 3);
-        
-		if(red - 25 > ((green + blue)/2)){
-			target_pixel[i] = 1;
-            target_visible = 1;
-		}else{
-			target_pixel[i] = 0;
-		}
-	}
-}
-
-void target_not_visible() {
-    //perform p1 or some wondering function
-}
-
-//turn based on if the target is to the left or right
-void p5_follow_target(){
-
-    get_image();
-	analyse_image();
-
-    if(target_visible == 1){ //If the target is not visible do some plan oriented behaviour 
-        int left = 0;
-        int right = 0;
-        int i;
-        for(i = 0; i < 80; i++){
-            if(target_pixel[i] == 1){
-                left++;
-            }
-            if(target_pixel[i + 80] == 1){
-                right++;
-            }
-        }
-        if(left > right){
-            e_set_speed(500, 100); //Turn left
-        }
-        else if(right > left){
-            e_set_speed(500, -100); //Turn right
-        }
-        else if(right == left){
-            e_set_speed(500, 0); //Move forward
-        }
-    } else {
-        e_activate_agenda(target_not_visible, 500); //this is wrong
-    }
-}
-
 //Planning functions
 //Calculate all current position metrics
 void compute_metrics(){
     //Get motor steps
     int stepsLlatest = e_get_steps_left();
-    int stepsRlatest = e_get_steps_right();
+    int stepsRlatest = -(e_get_steps_right());
     //Get motor distance
     float distL = ((stepsLlatest - stepsL) / 1000.0) * (WHEEL_DIAMETER * PI);
     float distR = ((stepsRlatest - stepsR) / 1000.0) * (WHEEL_DIAMETER * PI);
     float total_dist = (distL + distR) / 2;
-    float angle_adj = (distR - distL) / WHEEL_GAP ;
+    float angle_adj = (distR - distL) / WHEEL_GAP;
     
     //Adjust the angle of the e-puck with respect to the x axis
     x_angle = x_angle + angle_adj;
@@ -126,7 +62,7 @@ void compute_metrics(){
     yaxis = yaxis + (total_dist * sin(x_angle));
     
     //Get the angle of the goal with respect to the e-puck
-    g_angle = atanf((goalxaxis - xaxis)/(goalyaxis - yaxis));
+    g_angle = atanf((goalyaxis - yaxis)/ (goalxaxis - xaxis));
     
     //Calculate the straight line distance between e-puck and the goal
     g_dist = sqrt(((goalxaxis - xaxis)*(goalxaxis - xaxis)) + ((goalyaxis - yaxis)*(goalxaxis - xaxis)));
@@ -143,12 +79,45 @@ void p5_set_goal(int x, int y) {
 }
 
 //Move towards goal coordinates x and y
-void p5_move_towards_goal() {    
+void p5_move_towards_goal() {  
+    compute_metrics();
     int angle = ((g_angle - x_angle) * 180) / PI;
-    int turn = angle;
+    int turn = 0;
+        
+    if(angle > 5){
+        turn = 20;
+        if(angle > 30){
+            turn = 50;
+            if(angle > 60){
+                turn = 75;
+                if(angle > 90){
+                    turn = 100;
+                }
+            }
+        }
+    }
     
-    if(angle > 30) turn = 50;
-    if(angle < -30) turn = -50;
+    if(angle < -5){
+        turn = -20;
+        if(angle < -30){
+            turn = -50;
+            if(angle < -60){
+                turn = -75;
+                if(angle < -90){
+                    turn = -100;
+                }
+            }
+        }
+    }
+    
+    if(g_dist < 5){
+        int i;
+        for(i=0;i<8;i++){
+            e_set_led(i,1);
+        }
+        p5_speed = 0;
+        turn = 0;
+    }
     
     e_set_speed(p5_speed, turn);
 }
@@ -156,11 +125,10 @@ void p5_move_towards_goal() {
 void p5_run() {
     e_set_steps_left(0);
     e_set_steps_right(0);
-        
+       
     p5_set_goal(50, 50);
-    e_activate_agenda(compute_metrics, 250);
-    e_activate_agenda(p5_move_towards_goal, 250);
-    //p1_run();
+    e_activate_agenda(p5_move_towards_goal, 1000);
+    
     while(1) {
     }
 }
