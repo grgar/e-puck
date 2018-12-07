@@ -50,6 +50,66 @@ void p6_drive() {
     p6_set_speed(1000, 0);
 }
 
+void p6_travel_steps(int distanceLeft, int distanceRight, int speed) {
+    int startStepsLeft = e_get_steps_left();
+    int startStepsRight = e_get_steps_right() * -1; // Steps right is negative if it's gone forwards
+    int currentStepsLeft = startStepsLeft;
+    int currentStepsRight = startStepsRight;
+    
+    e_set_speed(speed, 0);
+    
+        char message3[5];
+        sprintf(message3, "here");
+        e_send_uart1_char(message3, strlen(message3));
+    
+    // Keep traveling until
+    while (currentStepsLeft - startStepsLeft <= distanceLeft || currentStepsRight - startStepsRight <= distanceRight) {
+        char message4[5];
+        sprintf(message4, "test");
+        e_send_uart1_char(message4, strlen(message4));
+        
+        char message5[150];
+        sprintf(message5, "CSL: %i, SSL: %i, DL: %i, CSR: %i, SSR: %i, DR: %i, \n\r", currentStepsLeft, startStepsLeft, distanceLeft, currentStepsRight, startStepsRight, distanceRight);
+        e_send_uart1_char(message5, strlen(message5));
+        
+        currentStepsLeft = e_get_steps_left();
+        currentStepsRight = e_get_steps_right() * -1; // Steps right is negative if it's gone forwards
+    }
+        char message2[5];
+        sprintf(message2, "after");
+        e_send_uart1_char(message2, strlen(message2));
+    
+    e_set_speed(0, 0);
+}
+
+void p6_parallel_park_2() {
+//    int FORWARD_SPEED = 1000;
+//    int REVERSE_SPEED = -FORWARD_SPEED;
+
+    
+    p6_travel_steps(1000, 1000, 1000);
+//    
+//    
+//    // TODO: Fine tune delay to travel half the distance of the ePuck
+//    // 1000 steps = 12.8cm
+//    delay(1000);
+//    
+//    e_set_speed(0, REVERSE_SPEED);
+//    
+//    // TODO: Fine tune delay so ePuck is angled at a 45 degree angle
+//    delay(1000);
+//    
+//    e_set_speed(REVERSE_SPEED, REVERSE_SPEED);
+//    
+//    // TODO: Use IR sensor instead of delay. Stop reversing when ePuck is close to hitting wall
+//    delay(1000);
+//    
+//    e_set_speed(REVERSE_SPEED, 0);
+//    
+//    // TODO: Fine tune delay so ePuck has corrected the 45 degree angle it just gave itself
+//    delay(1000);
+}
+
 void p6_stop() {
     p6_set_speed(0, 0);
 }
@@ -169,13 +229,18 @@ void p6_straighten_up(int lastKnownDistanceToWall) {
 }
 
 void p6_run(void) {
-    e_init_uart1();
     e_activate_agenda(p6_sense, 500);
 
     // TODO: Find wall, use straighten up function, then continue
 
     p6_drive();
 
+//    e_activate_agenda(p6_sense, 500);
+    
+    // TODO: Find wall, use straighten up function, then continue
+    
+    p6_parallel_park_2();
+    
     // Get the initial distance to the wall, use p6_straighten_up to keep it
     int lastKnownDistanceToWall = p6_get_confident_ir_reading(5, 3);
 
