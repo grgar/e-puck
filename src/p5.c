@@ -15,11 +15,6 @@
 #define WHEEL_DIAMETER 4.0 //cm
 #define PI 3.141592
 
-//Camera values
-char camera[160]; //Camera information
-int target_pixel[160]; //Is pixel target?
-int target_visible = 0; //Is target visible?
-
 //goal metrics
 double goalxaxis; //x and y axis of goal
 double goalyaxis;
@@ -29,7 +24,7 @@ float g_angle; //angle of e-puck orientation compared goal
 //e-puck metrics
 float xaxis = 0.0; //x and y axis of e-puck
 float yaxis = 0.0;
-int stepsL;//Motor steps from left and right motor
+int stepsL; //Motor steps from left and right motor
 int stepsR;
 float x_angle = 0.0; //angle of e-puck orientation compared to the x axis
 
@@ -83,30 +78,21 @@ p1_V p5_move_towards_goal() {
     compute_metrics();
     int angle = ((g_angle - x_angle) * 180) / PI;
     int turn = 0;
+    int speed = 500;
         
     if(angle > 5){
         turn = 20;
         if(angle > 30){
-            turn = 50;
-            if(angle > 60){
-                turn = 75;
-                if(angle > 90){
-                    turn = 100;
-                }
-            }
+            turn = 100;
+            speed = 0;
         }
     }
     
     if(angle < -5){
         turn = -20;
         if(angle < -30){
-            turn = -50;
-            if(angle < -60){
-                turn = -75;
-                if(angle < -90){
-                    turn = -100;
-                }
-            }
+            turn = -100;
+            speed = 0;
         }
     }
     
@@ -115,11 +101,11 @@ p1_V p5_move_towards_goal() {
         for(i=0;i<8;i++){
             e_set_led(i,1);
         }
-        p5_speed = 0;
+        speed = 0;
         turn = 0;
     }
     
-    p1_V v = {.speed = 500, .direction = turn};
+    p1_V v = {.speed = speed, .direction = turn};
     return v;
 }
 
