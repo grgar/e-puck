@@ -51,6 +51,11 @@ void p6_drive() {
 }
 
 void p6_travel_steps(int distanceLeft, int distanceRight, int speed) {
+    //TODO
+    // Check if steps right is negative
+    // check the while condition - possibly infinite
+    // Get screen outputting variable correctly
+    
     int startStepsLeft = e_get_steps_left();
     int startStepsRight = e_get_steps_right() * -1; // Steps right is negative if it's gone forwards
     int currentStepsLeft = startStepsLeft;
@@ -58,25 +63,26 @@ void p6_travel_steps(int distanceLeft, int distanceRight, int speed) {
     
     e_set_speed(speed, 0);
     
-        char message3[5];
-        sprintf(message3, "here");
+        char message3[20];
+        sprintf(message3, "pere%i\n", 0);
         e_send_uart1_char(message3, strlen(message3));
     
     // Keep traveling until
     while (currentStepsLeft - startStepsLeft <= distanceLeft || currentStepsRight - startStepsRight <= distanceRight) {
-        char message4[5];
-        sprintf(message4, "test");
+        char message4[10];
+        sprintf(message4, "test%i\n", 1);
         e_send_uart1_char(message4, strlen(message4));
         
         char message5[150];
-        sprintf(message5, "CSL: %i, SSL: %i, DL: %i, CSR: %i, SSR: %i, DR: %i, \n\r", currentStepsLeft, startStepsLeft, distanceLeft, currentStepsRight, startStepsRight, distanceRight);
+        sprintf(message5, "CSL: %i, SSL: %i, DL: %i, CSR: %i, SSR: %i, DR: %i, \n", currentStepsLeft, startStepsLeft, distanceLeft, currentStepsRight, startStepsRight, distanceRight);
         e_send_uart1_char(message5, strlen(message5));
         
         currentStepsLeft = e_get_steps_left();
         currentStepsRight = e_get_steps_right() * -1; // Steps right is negative if it's gone forwards
     }
-        char message2[5];
-        sprintf(message2, "after");
+        
+        char message2[10];
+        sprintf(message2, "after%i\n", 3);
         e_send_uart1_char(message2, strlen(message2));
     
     e_set_speed(0, 0);
