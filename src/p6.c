@@ -52,8 +52,10 @@ void p6_drive() {
     p6_set_speed(1000, 0);
 }
 
+int startSteps = 0;
 int currentSteps = 0;
-int stopAtSteps = 0;
+int distanceRequired = 0;
+bool isMovingForwards = true;
 
 int travelDistanceArray[6] = { -1, -1, -1, -1, -1, -1 };
 int currentTravelDistanceIndex = 0;
@@ -75,7 +77,7 @@ void insert(int data) {
 
 void p6_travel_agenda() {
     if (isTraveling) {
-        if (currentSteps <= stopAtSteps) {
+        if (abs(currentSteps - startSteps) <= distanceRequired) {
             currentSteps = abs(e_get_steps_left()) + abs(e_get_steps_right());
         } else {
             isFinishedTraveling = true;
@@ -89,10 +91,11 @@ void p6_travel_manager_agenda() {
         int distance = travelDistanceArray[currentTravelDistanceIndex];
         
         if (!isTraveling) {
-            currentSteps = abs(e_get_steps_left()) + abs(e_get_steps_right());
-            stopAtSteps = currentSteps + distance;
+            startSteps = abs(e_get_steps_left()) + abs(e_get_steps_right());
+            currentSteps = startSteps;
+            distanceRequired = abs(distance);
             
-            e_set_speed(300, 0);
+            e_set_speed(distance, 0); // TODO: Update dynamically
             isTraveling = true;
         } else if (isFinishedTraveling) {
             currentTravelDistanceIndex++;
@@ -104,50 +107,16 @@ void p6_travel_manager_agenda() {
 }
 
 void p6_travel_steps(int distance) {
-    //TODO
-    // Check if steps right is negative
-    // check the while condition - possibly infinite
-    // Get screen outputting variable correctly
-    
-//    int startStepsLeft = abs(e_get_steps_left());
-//    int startStepsRight = abs(e_get_steps_right());
-//    int currentStepsLeft = startStepsLeft;
-//    int currentStepsRight = startStepsRight;
-
     insert(distance);
-//        
-//        char message2[10];
-//        sprintf(message2, "after%i\n", 3);
-//        e_send_uart1_char(message2, strlen(message2));
-    
-       
 }
 void p6_parallel_park() {
-//    int FORWARD_SPEED = 1000;
-//    int REVERSE_SPEED = -FORWARD_SPEED;
-
-//      p6_travel_steps(1000);
-//      p6_travel_steps(300);
-//    
-//    
-//    // TODO: Fine tune delay to travel half the distance of the ePuck
-//    // 1000 steps = 12.8cm
-//    delay(1000);
-//    
-//    e_set_speed(0, REVERSE_SPEED);
-//    
-//    // TODO: Fine tune delay so ePuck is angled at a 45 degree angle
-//    delay(1000);
-//    
-//    e_set_speed(REVERSE_SPEED, REVERSE_SPEED);
-//    
-//    // TODO: Use IR sensor instead of delay. Stop reversing when ePuck is close to hitting wall
-//    delay(1000);
-//    
-//    e_set_speed(REVERSE_SPEED, 0);
-//    
-//    // TODO: Fine tune delay so ePuck has corrected the 45 degree angle it just gave itself
-//    delay(1000);
+    // TODO: Implement
+    p6_travel_steps(-500);
+    p6_travel_steps(1000);
+    p6_travel_steps(-1000);
+    p6_travel_steps(500);
+    p6_travel_steps(500);
+    p6_travel_steps(-100);
 } 
 
 void p6_stop() {
@@ -256,14 +225,9 @@ void p6_run(void) {
     e_activate_agenda(p6_travel_agenda, 500);
     e_activate_agenda(p6_travel_manager_agenda, 500);
 
-    p6_travel_steps(-500);
-    p6_travel_steps(-1000);
-
-//    p6_travel_steps(500);
+    p6_parallel_park();
     
-    while(1){
-        
-    }
+    while(1) {}
     
     // Get the initial distance to the wall, use p6_straighten_up to keep it
     int lastKnownDistanceToWall = p6_get_confident_ir_reading(5, 3);
