@@ -81,17 +81,17 @@ p1_V p5_move_towards_goal() {
     int speed = 500;
         
     if(angle > 5){
-        turn = 20;
-        if(angle > 30){
-            turn = 100;
+        turn = 25;
+        if(angle > 25){
+            turn = 350;
             speed = 0;
         }
     }
     
     if(angle < -5){
-        turn = -20;
-        if(angle < -30){
-            turn = -100;
+        turn = -25;
+        if(angle < -25){
+            turn = -350;
             speed = 0;
         }
     }
