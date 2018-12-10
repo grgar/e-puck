@@ -9,37 +9,31 @@ typedef int bool;
 #define true 1
 #define false 0
 
-//Array for all of the Sensor Values
+//Initialise values
 int p8_sensors[8] = {0};
-
-int startSteps = 0;
 int currentSteps = 0;
-int distanceRequired = 0;
-bool isMovingForwards = true;
-bool isFinishedTraveling = false;
-bool isTraveling = false;
-
 int failureNo;
-int sensorOn;
-void p8_check();
-void p8_drive();
-void p8_travel();
+void p8_sense();
+void p8_patrol();
+void p8_chase();
 int p8_any_sensor_on();
+int p8_tolerance(int position);
 
+//Scanning for light
 void p8_lights() {
     e_pause_agenda(p8_lights);
-    e_pause_agenda(p8_drive);
-    e_pause_agenda(p8_drive);
+    e_pause_agenda(p8_patrol);
     e_set_body_led(0);
     int k;
     for (k=0; k<=7; k++){
         e_set_led(k,0);
     }
-//Love
+
+    //Display the light pattern
     int i;
     int j;
     for (i = 0; i<5; i++) {
-        delay(100000);
+        delay(300000);
         switch (i) {
             case 0:
                 e_set_led(0,1);
@@ -58,9 +52,9 @@ void p8_lights() {
                 break;
             case 4:
                 e_set_led(4,1);
-                delay(200000);
+                delay(600000);
                 for (j = 0; j<5; j++) {
-                    delay(50000);
+                    delay(200000);
                     switch (j) {
                         case 0:
                             e_set_led(4,0);
@@ -78,43 +72,28 @@ void p8_lights() {
                             e_set_led(7,0);
                             break;
                         case 4:
-                            delay(400000);
+                            delay(600000);
                             break;
                     }
                 }
                 break;
         }
     }
+    
+    //Check the sensors, if one is on, initiate the chase
     p8_sense();
-    sensorOn = p8_any_sensor_on();
     e_set_steps_left(0);
     e_set_steps_right(0);
-    if (sensorOn == 1){
-        e_restart_agenda(p8_travel);
-        //p8_check();
+    if (p8_any_sensor_on() == 1){
+        e_restart_agenda(p8_chase);
     } else {
-        e_restart_agenda(p8_drive);
+        e_restart_agenda(p8_patrol);
     }
 }
 
-void p8_ree() {
-    int i;
-    e_set_body_led(1);
-    for (i = 0; i<8; i++){
-        e_set_led(i,1);
-    }
-}
-void p8_reee() {
-    int i;
-    e_set_body_led(0);
-    for (i = 0; i<8; i++){
-        e_set_led(i,0);
-    }
-}
-
-void p8_drive() {
+//Patrol the area (go forward and about turn)
+void p8_patrol() {
     e_set_speed(1000,0);
-    
     if (e_get_steps_left() >= 1000 || e_get_steps_right() <= -1000) {
         e_set_speed(0,-1000);
         if (e_get_steps_left() >= 1700 || e_get_steps_right() <= -1700) {
@@ -124,17 +103,19 @@ void p8_drive() {
     }   
 }
 
-void p8_travel() {
-    //check its still going
-    //readjust position
-    //if its not traveling, pause this and start the lights and drive
-    //e_set_led(8,1);
-    //e_set_body_led(1);
+//Chase the light for a certain amount of time until it's lost the scent
+void p8_chase() {
+
+    //Turn all the lights on and check sensors
+    e_set_led(8,1);
+    e_set_body_led(1);
     p8_sense();
     
-    
+    //If there's a sensor on and it hasn't failed too many times, continue
     if (p8_any_sensor_on() == 1 && failureNo <= 60) {
-        if (abs(currentSteps) <= 150) {
+        
+        //Count the steps (functions as a while loop)
+        if (abs(currentSteps) <= 10) {
             currentSteps = abs(e_get_steps_left()) + abs(e_get_steps_right());
         
             //Gives s3 priority over s2 and s2 over s1, s1 over s0
@@ -170,31 +151,31 @@ void p8_travel() {
                     }
                 }
             }
-        
-        
-        
+
+        //Reset everything once it passes a set amount of steps
         } else {
-            isFinishedTraveling = true;
             e_set_steps_left(0);
             e_set_steps_right(0);
             currentSteps = 0;
             e_set_speed(0,0);
         }
         
-        
-    } else if (p8_any_sensor_on() == 0 && failureNo <= 60){
+    //If no sensors are on and it hasn't failed too many times, increment failureNo
+    } else if (p8_any_sensor_on() == 0 && failureNo <= 60) {
         failureNo = failureNo + 1;
-        //e_set_led(failureNo,1);
+        e_set_led(8,0);
+        
+    //If no sensors are on and it's failed too many times, restart the patrol
     } else {
         failureNo = 0;
-        e_pause_agenda(p8_travel);
+        e_set_body_led(0);
+        e_pause_agenda(p8_chase);
         e_restart_agenda(p8_lights);
     }
 }
 
-
 //Gets the value of each sensor
-void p8_sense(void) {
+void p8_sense() {
     int i;
     for (i = 0; i < 8; i++) {
         p8_sensors[i] = 5000 - (e_get_ambient_light(i));
@@ -230,84 +211,12 @@ int p8_any_sensor_on() {
     return 0;
 }
 
-void p8_check() {     //CHANGE TO BOOL
-    e_set_body_led(1);
-    int t;
-    for (t=0;t<=8;t++){
-        e_set_led(t,1);
-    }
-    
-    //if no sensors on, don't move
-    if (p8_any_sensor_on() == 0) {
-        e_set_speed(0, 0);
-    } else {
-
-        //if both front sensors 'on', move forward at speed 1000
-        if ((p8_sensors[0] > p8_tolerance(0)) && (p8_sensors[7] > p8_tolerance(7))) {
-                e_activate_agenda(p8_ree, 9000);
-                e_activate_agenda(p8_reee, 9000);
-                e_set_speed(1000, 0);
-            }
-
-        //if(){
-            //EVERYTHING IS "NORMAL" START PACING
-        //}
-
-
-        //Gives s3 priority over s2 and s2 over s1, s1 over s0
-        if (p8_sensors[3] > p8_tolerance(3)) {
-            e_set_speed(0, -1000);
-            e_set_led(1,0);
-        } else {
-            if (p8_sensors[2] > p8_tolerance(2)) {
-                e_set_speed(0, -1000);
-                e_set_led(2,0);
-            } else {
-
-                if (p8_sensors[1] > p8_tolerance(1)) {
-                    e_set_speed(800, -200);
-                    e_set_led(3,0);
-                } else {
-                    if (p8_sensors[0] > p8_tolerance(0)) {
-                        e_set_speed(1000, 0);
-                        e_set_led(4,0);
-                    }
-                }
-            }
-        }
-
-
-        //Gives s4 priority over s5 and s5 over s6, s6 over s7
-        if (p8_sensors[4] > p8_tolerance(4)) {
-            e_set_speed(0, 1000);
-            e_set_led(5,0);
-        } else {
-            if (p8_sensors[5] > p8_tolerance(5)) {
-                e_set_speed(0, 1000);
-                e_set_led(6,0);
-            } else {
-                if (p8_sensors[6] > p8_tolerance(6)) {
-                    e_set_speed(800, 200);
-                    e_set_led(7,0);
-                } else {
-                    if (p8_sensors[7] > p8_tolerance(7)) {
-                        e_set_speed(1000, 0);
-                        e_set_body_led(0);
-                    }
-                }
-            }
-        }
-    }
-}
-
-
 //Main run function for p8
 void p8_run() {
-    //e_activate_agenda(p8_check, 500);
-    e_activate_agenda(p8_drive, 500);
+    e_activate_agenda(p8_patrol, 500);
     e_activate_agenda(p8_lights, 500);
-    e_activate_agenda(p8_sense, 500);
-    e_activate_agenda(p8_travel,500);
+    e_activate_agenda(p8_chase,500);
+    e_pause_agenda(p8_chase);
     while (1) {
     }
 }
