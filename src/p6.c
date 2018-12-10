@@ -93,8 +93,8 @@ void p6_travel_agenda() {
     isTravelAgendaLocked = true;
  
     if (isTraveling) {
-        bool leftReachedDistance = abs(currentStepsLeft - startStepsLeft) > distanceDeltaLeft;
-        bool rightReachedDistance = abs(currentStepsRight - startStepsRight) > distanceDeltaRight;
+        bool leftReachedDistance = abs(currentStepsLeft - startStepsLeft) >= distanceDeltaLeft;
+        bool rightReachedDistance = abs(currentStepsRight - startStepsRight) >= distanceDeltaRight;
 
         if (leftReachedDistance && rightReachedDistance) {
             isFinishedTraveling = true;
@@ -104,13 +104,6 @@ void p6_travel_agenda() {
             currentStepsLeft = abs(e_get_steps_left());
             currentStepsRight = abs(e_get_steps_right());
         }
-        
-//        if (abs(currentStepsLeft - startStepsLeft) <= distanceDeltaLeft) {
-//            currentStepsLeft = abs(e_get_steps_left()) + abs(e_get_steps_right());
-//        } else {
-//            isFinishedTraveling = true;
-//        }
-        
     }
     
     isTravelAgendaLocked = false;
@@ -141,7 +134,6 @@ void p6_travel_manager_agenda() {
             
             e_set_speed_left(speedLeft);
             e_set_speed_right(speedRight);
-//            e_set_speed(1000, 0);
 
             isTraveling = true;
         } else if (isFinishedTraveling) {
@@ -154,11 +146,52 @@ void p6_travel_manager_agenda() {
 
     isTravelAgendaLocked = false;
 }
-void p6_parallel_park() {
+
+float p6_cm_to_steps(int cm) {
+    float PI = 3.141592;
+    int WHEEL_DIAMETER_CM = 4;
+    float steps = (cm * 1000) / PI / WHEEL_DIAMETER_CM;
+
+    return steps;
+}
+
+void p6_parallel_park(int mode) {
     // TODO: Implement
-    p6_queue_travel(1000, 1000, 1000, 1000);
-    p6_queue_travel(1000, 1000, -1000, -1000);
-} 
+    int FORWARD_SPEED = 1000;
+    int REVERSE_SPEED = -FORWARD_SPEED;
+    int E_PUCK_DIAMETER_CM = 7;
+    int puckLengthInSteps = p6_cm_to_steps(E_PUCK_DIAMETER_CM);
+    int halfPuckLengthInSteps = puckLengthInSteps;
+
+    switch (mode) {
+        case 0:
+            // "smooth"
+            p6_queue_travel(800 * 0.25, 800, REVERSE_SPEED * 0.25, REVERSE_SPEED);
+            p6_queue_travel(800, 800 * 0.25, REVERSE_SPEED, REVERSE_SPEED * 0.25);
+            break;
+        case 1:
+            // ePuck style
+            p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED);
+            p6_queue_travel(300, 300, FORWARD_SPEED, REVERSE_SPEED);
+            p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED);
+            p6_queue_travel(300, 300, REVERSE_SPEED, FORWARD_SPEED);
+            break;
+        default:
+            // Like a car would
+
+            // Go back half an ePuck length
+            p6_queue_travel(halfPuckLengthInSteps, halfPuckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED);
+
+            // Turn 45 degrees left
+            p6_queue_travel(0, 300, 0, REVERSE_SPEED);
+
+            // Travel backwards
+            p6_queue_travel(200, 200, REVERSE_SPEED, REVERSE_SPEED);
+
+            // Turn 45 degrees left
+            p6_queue_travel(300, 0, REVERSE_SPEED, 0);
+    }
+}
 
 void p6_stop() {
     p6_set_speed(0, 0);
@@ -263,10 +296,10 @@ void p6_run(void) {
     
     // TODO: Find wall, use straighten up function, then continue
     
-    e_activate_agenda(p6_travel_agenda, 500);
-    e_activate_agenda(p6_travel_manager_agenda, 500);
+    e_activate_agenda(p6_travel_agenda, 10);
+    e_activate_agenda(p6_travel_manager_agenda, 10);
 
-    p6_parallel_park();
+    p6_parallel_park(1);
     
     while(1) {}
     
