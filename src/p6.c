@@ -52,71 +52,117 @@ void p6_drive() {
     p6_set_speed(1000, 0);
 }
 
-int startSteps = 0;
-int currentSteps = 0;
-int distanceRequired = 0;
+int startStepsLeft = 0;
+int startStepsRight = 0;
+int currentStepsLeft = 0;
+int currentStepsRight = 0;
+int distanceDeltaLeft = 0;
+int distanceDeltaRight = 0;
 bool isMovingForwards = true;
 
-int travelDistanceArray[6] = { -1, -1, -1, -1, -1, -1 };
+// Odd index stores left distance/speed, even stores right
+int travelDistanceArray[MAX * 2] = { -1, -1, -1, -1 -1, -1 -1, -1 -1, -1 -1, -1 };
+int travelSpeedArray[MAX * 2] = { -1, -1 -1, -1 -1, -1 -1, -1 -1, -1 -1, -1 };
 int currentTravelDistanceIndex = 0;
 
 bool isFinishedTraveling = false;
 bool isTraveling = false;
 
-void insert(int data) {
-    int i;
+void p6_queue_travel(int distanceLeft, int distanceRight, int speedLeft, int speedRight) {
     
-    // Find next non -1 entry and set it
-    for (i = 0; i < MAX; i++) {
-        if (travelDistanceArray[i] == -1) {
-            travelDistanceArray[i] = data;
-            break;
-        }
-    }
+//        if (travelDistanceArray[i] == -1) {
+    travelDistanceArray[0] = distanceLeft;
+    travelDistanceArray[0 + 1] = distanceRight;
+    travelSpeedArray[0] = speedLeft;
+    travelSpeedArray[0 + 1] = speedRight;
+//    int i;
+//    
+//    // Find next non -1 entry and set it
+//    for (i = 0; i < MAX * 2; i += 2) {
+//        if (travelDistanceArray[i] == -1) {
+//            travelDistanceArray[i] = distanceLeft;
+//            travelDistanceArray[i + 1] = distanceRight;
+//            travelSpeedArray[i] = speedLeft;
+//            travelSpeedArray[i + 1] = speedRight;
+//            break;
+//        }
+//    }
 }
 
+bool isTravelAgendaLocked = false;
+
 void p6_travel_agenda() {
+    if (isTravelAgendaLocked) {
+        return;
+    }
+    
+    isTravelAgendaLocked = true;
+ 
     if (isTraveling) {
-        if (abs(currentSteps - startSteps) <= distanceRequired) {
-            currentSteps = abs(e_get_steps_left()) + abs(e_get_steps_right());
+//        bool leftReachedDistance = abs(currentStepsLeft - startStepsLeft) > distanceDeltaLeft;
+//        bool rightReachedDistance = abs(currentStepsRight - startStepsRight) > distanceDeltaRight;
+//
+//        if (leftReachedDistance && rightReachedDistance) {
+//            isFinishedTraveling = true;
+//        } else {
+//            // TODO: Potential to stop either motor when it reaches distance here?
+//            
+//            currentStepsLeft = abs(e_get_steps_left());
+//            currentStepsRight = abs(e_get_steps_right());
+//        }
+        
+        if (abs(currentStepsLeft - startStepsLeft) <= distanceDeltaLeft) {
+            currentStepsLeft = abs(e_get_steps_left()) + abs(e_get_steps_right());
         } else {
             isFinishedTraveling = true;
         }
+        
     }
+    
+    isTravelAgendaLocked = false;
 }
 
 void p6_travel_manager_agenda() {
+    if (isTravelAgendaLocked) {
+        return;
+    }
+    
+    isTravelAgendaLocked = true;
+    
     // New item is at the front of the array
     if (travelDistanceArray[currentTravelDistanceIndex] != -1) {
-        int distance = travelDistanceArray[currentTravelDistanceIndex];
+//        int speedLeft = travelSpeedArray[currentTravelDistanceIndex];
+//        int speedRight = travelSpeedArray[currentTravelDistanceIndex + 1];
+        int distanceLeft = travelDistanceArray[currentTravelDistanceIndex];
+//        int distanceRight = travelDistanceArray[currentTravelDistanceIndex + 1];
         
         if (!isTraveling) {
-            startSteps = abs(e_get_steps_left()) + abs(e_get_steps_right());
-            currentSteps = startSteps;
-            distanceRequired = abs(distance);
+            // TODO: Combine left/right into same?
+            startStepsLeft = abs(e_get_steps_left()) + abs(e_get_steps_right());
+//            startStepsRight = abs(e_get_steps_right());
+            currentStepsLeft = startStepsLeft;
+//            currentStepsRight = startStepsRight;
+            distanceDeltaLeft = abs(distanceLeft);
+//            distanceDeltaRight = abs(distanceRight);
             
-            e_set_speed(distance, 0); // TODO: Update dynamically
+//            e_set_speed_left(speedLeft);
+//            e_set_speed_right(speedRight);
+            e_set_speed(1000, 0);
+
             isTraveling = true;
         } else if (isFinishedTraveling) {
-            currentTravelDistanceIndex++;
+//            currentTravelDistanceIndex += 2;
             e_set_speed(0, 0);
             isTraveling = false;
             isFinishedTraveling = false;
         }
     }
-}
 
-void p6_travel_steps(int distance) {
-    insert(distance);
+    isTravelAgendaLocked = false;
 }
 void p6_parallel_park() {
     // TODO: Implement
-    p6_travel_steps(-500);
-    p6_travel_steps(1000);
-    p6_travel_steps(-1000);
-    p6_travel_steps(500);
-    p6_travel_steps(500);
-    p6_travel_steps(-100);
+    p6_queue_travel(1000, 1000, 1000, 1000);
 } 
 
 void p6_stop() {
