@@ -11,6 +11,7 @@
 #include "p5.h"
 
 char msg[30];
+p1_V v;
 
 void p10_goal_obstacle() {
     p1_V v_goal = p5_move_towards_goal();

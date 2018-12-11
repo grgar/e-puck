@@ -55,13 +55,23 @@ void compute_metrics() {
     //Get the coordinates of the e-puck
     xaxis = xaxis + (total_dist * cos(x_angle));
     yaxis = yaxis + (total_dist * sin(x_angle));
-
+    
+    double xdiff = goalxaxis - xaxis;
+    double ydiff = goalyaxis - yaxis;
+   
     //Get the angle of the goal with respect to the e-puck
-    g_angle = atanf((goalyaxis - yaxis) / (goalxaxis - xaxis));
+    g_angle = atanf(ydiff/ xdiff);
 
+    //Incase goal is in bottom left quadrant
+    if(xdiff < 0 && ydiff < 0){
+        g_angle -= PI;
+    }else if(xdiff < 0){ //Incase goal is in top left quadrant
+        g_angle += PI;
+    }
+    
     //Calculate the straight line distance between e-puck and the goal
-    g_dist = sqrt(((goalxaxis - xaxis)*(goalxaxis - xaxis)) + ((goalyaxis - yaxis)*(goalxaxis - xaxis)));
-
+    g_dist = sqrt((xdiff * xdiff) + (ydiff * ydiff));
+    
     //Re-calibrate steps
     stepsL = stepsLlatest;
     stepsR = stepsRlatest;
@@ -77,8 +87,10 @@ void p5_set_goal(int x, int y) {
 p1_V p5_move_towards_goal() {
     compute_metrics();
 
+    //Convert radians to degrees
     p1_V v = {.speed = 500, .direction = ((g_angle - x_angle) * 180) / PI};
 
+    //Stop if the goal is reached
     if (g_dist < 5) {
         int i;
         for (i = 0; i < 8; i++) {
@@ -98,17 +110,19 @@ p1_V p5_move_towards_goal_smooth(p1_V v) {
 
     int angle = v.direction;
 
+    //Turn left if goal is to the left
     if (angle > 5) {
         v.direction = 25;
-        if (angle > 25) {
+        if (angle > 25) { //Harsher turn if angle is very different
             v.direction = 350;
             v.speed = 0;
         }
     }
 
+    //Turn right if goal is to the right
     if (angle < -5) {
         v.direction = -25;
-        if (angle < -25) {
+        if (angle < -25) { //Harsher turn if angle is very different
             v.direction = -350;
             v.speed = 0;
         }
@@ -128,7 +142,7 @@ void p5_run() {
     e_set_steps_right(0);
 
     p5_set_goal(50, 50);
-    e_activate_agenda(p5_move_towards_goal_run, 250);
+    e_activate_agenda(p5_move_towards_goal_run, 1000);
 
     while (1) {
     }
