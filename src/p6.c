@@ -228,12 +228,20 @@ int p6_get_confident_ir_reading(int IRIndex, int confidenceRequired) {
 bool p6_is_gap() {
     int IRIndex = 5;
     int CONFIDENCE_REQUIRED = 3;
-    int DISTANCE_THRESHOLD = 50; // How far away we should consider "a gap"
+    int DISTANCE_THRESHOLD = 98; // How far away we should consider "a gap"
     int IRReading = p6_get_confident_ir_reading(IRIndex, CONFIDENCE_REQUIRED);
 
     bool isBlocked = IRReading <= DISTANCE_THRESHOLD; // Blocked when IR closer to 0
 
     return !isBlocked;
+}
+
+void p6_switch_led(bool shouldToggleOn) {
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        e_set_led(i, shouldToggleOn ? 1 : 0);
+    }
 }
 
 bool p6_is_big_gap() {
@@ -298,52 +306,45 @@ void p6_straighten_up(int lastKnownDistanceToWall) {
 } 
 
 void p6_run(void) {
-//    e_activate_agenda(p6_sense, 500);
-
     // TODO: Find wall, use straighten up function, then continue
 
-//    p6_drive();
-
-//    e_activate_agenda(p6_sense, 500);
-    
-    // TODO: Find wall, use straighten up function, then continue
-    
     e_activate_agenda(p6_travel_agenda, 10);
     e_activate_agenda(p6_travel_manager_agenda, 10);
 
-    p6_parallel_park(1);
+    // Get the initial distance to the wall, use p6_straighten_up to keep it
+    // int lastKnownDistanceToWall = p6_get_confident_ir_reading(5, 3);
+
+    p6_drive();
     
-    while(1) {}
     
-//    // Get the initial distance to the wall, use p6_straighten_up to keep it
-//    int lastKnownDistanceToWall = p6_get_confident_ir_reading(5, 3);
-//
-//    while (1) {
-//        bool isGap = p6_is_gap();
-//
-//        // If it's the start of an opening
-//        if (isGap) {
-//            bool isBigGap = p6_is_big_gap();
-//
-//            // Stop if it's a big enough gap to fit the ePuck
-//            if (isBigGap) {
-//                // TODO: Parallel park here, currently just stop.
-//                // p6_parallel_park();
-//                p6_stop();
-//                break;
-//            }
-//        } else {
-//            // TODO: Straighten up here, currently assume user places robot straight;
-//            // lastKnownDistanceToWall = p6_straighten_up(lastKnownDistanceToWall);
-//        }
-//
-//        int steps = p6_get_steps();
-//
-//        // If this is taking too long, stop anyway
-//        if (steps > 5000) {
-//            p6_stop();
-//            break;
-//        }
-//    }
+    p6_switch_led(0);
+
+    while (1) {
+        bool isGap = p6_is_gap();
+
+        // If it's the start of an opening
+        if (isGap) {
+            bool isBigGap = p6_is_big_gap();
+
+            // Stop if it's a big enough gap to fit the ePuck
+            if (isBigGap) {
+                p6_switch_led(1);
+                p6_stop();
+                p6_parallel_park(0);
+                break;
+            }
+        } else {
+            // TODO: Straighten up here, currently assume user places robot straight;
+            // lastKnownDistanceToWall = p6_straighten_up(lastKnownDistanceToWall);
+        }
+
+        int steps = p6_get_steps();
+
+        // If this is taking too long, stop anyway
+        if (steps > 5000) {
+            p6_stop();
+            break;
+        }
+    }
 }
 
