@@ -13,6 +13,7 @@
 #include <e_uart_char.h>
 
 #include "./common.h"
+#include "./p1.h"
 #include "./p6.h"
 
 typedef int bool;
@@ -63,12 +64,13 @@ bool isMovingForwards = true;
 // Odd index stores left distance/speed, even stores right
 int travelDistanceArray[MAX * 2] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 int travelSpeedArray[MAX * 2] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+float travelDelayArray[MAX] = { -1, -1, -1, -1, -1, -1 };
 int currentTravelDistanceIndex = 0;
 
 bool isFinishedTraveling = false;
 bool isTraveling = false;
 
-void p6_queue_travel(int distanceLeft, int distanceRight, int speedLeft, int speedRight) {
+void p6_queue_travel(int distanceLeft, int distanceRight, int speedLeft, int speedRight, float delayAfter) {
     int i;
     
     // Find next non -1 entry and set it
@@ -78,6 +80,7 @@ void p6_queue_travel(int distanceLeft, int distanceRight, int speedLeft, int spe
             travelDistanceArray[i + 1] = distanceRight;
             travelSpeedArray[i] = speedLeft;
             travelSpeedArray[i + 1] = speedRight;
+            travelDelayArray[i] = delayAfter;
             break;
         }
     }
@@ -139,6 +142,11 @@ void p6_travel_manager_agenda() {
         } else if (isFinishedTraveling) {
             currentTravelDistanceIndex += 2;
             e_set_speed(0, 0);
+            
+            float delaySeconds = travelDelayArray[currentTravelDistanceIndex];
+            
+            delay((long) (1000000 * delaySeconds));
+            
             isTraveling = false;
             isFinishedTraveling = false;
         }
@@ -161,35 +169,39 @@ void p6_parallel_park(int mode) {
     int REVERSE_SPEED = -FORWARD_SPEED;
     int E_PUCK_DIAMETER_CM = 7;
     int puckLengthInSteps = p6_cm_to_steps(E_PUCK_DIAMETER_CM);
-    int halfPuckLengthInSteps = puckLengthInSteps;
+    int halfPuckLengthInSteps = puckLengthInSteps / 2;
 
     switch (mode) {
         case 0:
             // "smooth"
-            p6_queue_travel(800 * 0.25, 800, REVERSE_SPEED * 0.25, REVERSE_SPEED);
-            p6_queue_travel(800, 800 * 0.25, REVERSE_SPEED, REVERSE_SPEED * 0.25);
+            p6_queue_travel(halfPuckLengthInSteps, halfPuckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0);
+            p6_queue_travel(800 * 0.20, 800, REVERSE_SPEED * 0.20, REVERSE_SPEED, 0);
+            p6_queue_travel(800, 800 * 0.20, REVERSE_SPEED, REVERSE_SPEED * 0.20, 0);
             break;
         case 1:
             // ePuck style
-            p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED);
-            p6_queue_travel(300, 300, FORWARD_SPEED, REVERSE_SPEED);
-            p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED);
-            p6_queue_travel(300, 300, REVERSE_SPEED, FORWARD_SPEED);
+            p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0);
+            p6_queue_travel(300, 300, FORWARD_SPEED, REVERSE_SPEED, 0);
+            p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0);
+            p6_queue_travel(300, 300, REVERSE_SPEED, FORWARD_SPEED, 0);
             break;
         default:
             // Like a car would
 
             // Go back half an ePuck length
-            p6_queue_travel(halfPuckLengthInSteps, halfPuckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED);
+            p6_queue_travel(halfPuckLengthInSteps, halfPuckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 1);
 
             // Turn 45 degrees left
-            p6_queue_travel(0, 300, 0, REVERSE_SPEED);
+            p6_queue_travel(0, 300, 0, REVERSE_SPEED, 1.5);
 
             // Travel backwards
-            p6_queue_travel(200, 200, REVERSE_SPEED, REVERSE_SPEED);
+            p6_queue_travel(850, 850, REVERSE_SPEED, REVERSE_SPEED, 0.5);
 
             // Turn 45 degrees left
-            p6_queue_travel(300, 0, REVERSE_SPEED, 0);
+            p6_queue_travel(300, 0, REVERSE_SPEED, 0, 1.5);
+            
+            // Travel closer to the wall again
+            p6_queue_travel(500, 500, FORWARD_SPEED, FORWARD_SPEED, 0);
     }
 }
 
@@ -286,11 +298,11 @@ void p6_straighten_up(int lastKnownDistanceToWall) {
 } 
 
 void p6_run(void) {
-    e_activate_agenda(p6_sense, 500);
+//    e_activate_agenda(p6_sense, 500);
 
     // TODO: Find wall, use straighten up function, then continue
 
-    p6_drive();
+//    p6_drive();
 
 //    e_activate_agenda(p6_sense, 500);
     
@@ -303,35 +315,35 @@ void p6_run(void) {
     
     while(1) {}
     
-    // Get the initial distance to the wall, use p6_straighten_up to keep it
-    int lastKnownDistanceToWall = p6_get_confident_ir_reading(5, 3);
-
-    while (1) {
-        bool isGap = p6_is_gap();
-
-        // If it's the start of an opening
-        if (isGap) {
-            bool isBigGap = p6_is_big_gap();
-
-            // Stop if it's a big enough gap to fit the ePuck
-            if (isBigGap) {
-                // TODO: Parallel park here, currently just stop.
-                // p6_parallel_park();
-                p6_stop();
-                break;
-            }
-        } else {
-            // TODO: Straighten up here, currently assume user places robot straight;
-            // lastKnownDistanceToWall = p6_straighten_up(lastKnownDistanceToWall);
-        }
-
-        int steps = p6_get_steps();
-
-        // If this is taking too long, stop anyway
-        if (steps > 5000) {
-            p6_stop();
-            break;
-        }
-    }
+//    // Get the initial distance to the wall, use p6_straighten_up to keep it
+//    int lastKnownDistanceToWall = p6_get_confident_ir_reading(5, 3);
+//
+//    while (1) {
+//        bool isGap = p6_is_gap();
+//
+//        // If it's the start of an opening
+//        if (isGap) {
+//            bool isBigGap = p6_is_big_gap();
+//
+//            // Stop if it's a big enough gap to fit the ePuck
+//            if (isBigGap) {
+//                // TODO: Parallel park here, currently just stop.
+//                // p6_parallel_park();
+//                p6_stop();
+//                break;
+//            }
+//        } else {
+//            // TODO: Straighten up here, currently assume user places robot straight;
+//            // lastKnownDistanceToWall = p6_straighten_up(lastKnownDistanceToWall);
+//        }
+//
+//        int steps = p6_get_steps();
+//
+//        // If this is taking too long, stop anyway
+//        if (steps > 5000) {
+//            p6_stop();
+//            break;
+//        }
+//    }
 }
 
