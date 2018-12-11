@@ -41,6 +41,10 @@ void p5_compute_metrics() {
     float distR = ((stepsRlatest - stepsR) / 1000.0) * (WHEEL_DIAMETER * PI);
     float total_dist = (distL + distR) / 2;
     float angle_adj = (distR - distL) / WHEEL_GAP;
+    
+    //Re-calibrate steps
+    stepsL = stepsLlatest;
+    stepsR = stepsRlatest;
 
     //Adjust the angle of the e-puck with respect to the x axis
     x_angle = x_angle + angle_adj;
@@ -56,6 +60,7 @@ void p5_compute_metrics() {
     xaxis = xaxis + (total_dist * cos(x_angle));
     yaxis = yaxis + (total_dist * sin(x_angle));
     
+    //The x and y difference of the e-puck to the goal
     double xdiff = goalxaxis - xaxis;
     double ydiff = goalyaxis - yaxis;
    
@@ -71,10 +76,6 @@ void p5_compute_metrics() {
     
     //Calculate the straight line distance between e-puck and the goal
     g_dist = sqrt((xdiff * xdiff) + (ydiff * ydiff));
-    
-    //Re-calibrate steps
-    stepsL = stepsLlatest;
-    stepsR = stepsRlatest;
 }
 
 //Set goal coordinates
@@ -141,7 +142,7 @@ void p5_run() {
     e_set_steps_right(0);
 
     p5_set_goal(50, 50);
-    e_activate_agenda(p5_move_towards_goal_run, 1000);
+    e_activate_agenda(p5_move_towards_goal_run, 500);
 
     while (1) {
     }
