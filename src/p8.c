@@ -1,13 +1,9 @@
 #include "motor_led/advance_one_timer/fast_agenda/e_led.h"
 #include "motor_led/advance_one_timer/fast_agenda/e_motors.h"
-#include "common.h"
 #include "motor_led/advance_one_timer/fast_agenda/e_agenda_fast.h"
 #include "a_d/advance_ad_scan/e_prox.h"
 #include "stdlib.h"
-
-typedef int bool;
-#define true 1
-#define false 0
+#include "common.h"
 
 //Initialise values
 int p8_sensors[8] = {0};
@@ -93,7 +89,7 @@ void p8_lights() {
 
 //Patrol the area (go forward and about turn)
 void p8_patrol() {
-    e_set_speed(1000,0);
+    e_set_speed(900,0);
     if (e_get_steps_left() >= 1000 || e_get_steps_right() <= -1000) {
         e_set_speed(0,-1000);
         if (e_get_steps_left() >= 1700 || e_get_steps_right() <= -1700) {
@@ -112,7 +108,7 @@ void p8_chase() {
     p8_sense();
     
     //If there's a sensor on and it hasn't failed too many times, continue
-    if (p8_any_sensor_on() == 1 && failureNo <= 60) {
+    if (p8_any_sensor_on() == 1) {
         
         //Count the steps (functions as a while loop)
         if (abs(currentSteps) <= 10) {
