@@ -161,45 +161,48 @@ float p6_cm_to_steps(int cm) {
     return steps;
 }
 
-void p6_parallel_park(int mode) {
+float p6_get_puck_length_in_steps() {
+    int E_PUCK_DIAMETER_CM = 7;
+    int puckLengthInSteps = p6_cm_to_steps(E_PUCK_DIAMETER_CM);
+
+    return puckLengthInSteps;
+}
+
+
+void p6_parallel_park(int gapSize) {
     // TODO: Implement
     int FORWARD_SPEED = 1000;
     int REVERSE_SPEED = -FORWARD_SPEED;
-    int E_PUCK_DIAMETER_CM = 7;
-    int puckLengthInSteps = p6_cm_to_steps(E_PUCK_DIAMETER_CM);
+    int puckLengthInSteps = p6_get_puck_length_in_steps();
     int halfPuckLengthInSteps = puckLengthInSteps / 2;
 
-    switch (mode) {
-        case 0:
-            // "smooth"
-            p6_queue_travel(halfPuckLengthInSteps, halfPuckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0);
-            p6_queue_travel(800 * 0.20, 800, REVERSE_SPEED * 0.20, REVERSE_SPEED, 0);
-            p6_queue_travel(800, 800 * 0.20, REVERSE_SPEED, REVERSE_SPEED * 0.20, 0);
-            break;
-        case 1:
-            // ePuck style
-            p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0);
-            p6_queue_travel(300, 300, FORWARD_SPEED, REVERSE_SPEED, 0);
-            p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0);
-            p6_queue_travel(300, 300, REVERSE_SPEED, FORWARD_SPEED, 0);
-            break;
-        default:
-            // Like a car would
+    p6_queue_travel(halfPuckLengthInSteps, halfPuckLengthInSteps, FORWARD_SPEED, FORWARD_SPEED, 1);
 
-            // Go back half an ePuck length
-            p6_queue_travel(halfPuckLengthInSteps, halfPuckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 1);
+    if (gapSize <= puckLengthInSteps * 3) {
+        // Smaller gap, make e-puck go straight in with no "frills"
+        p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0);
+        p6_queue_travel(300, 300, FORWARD_SPEED, REVERSE_SPEED, 0);
+        p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0);
+        p6_queue_travel(300, 300, REVERSE_SPEED, FORWARD_SPEED, 0);
+    } else if (gapSize <= puckLengthInSteps * 4) {
+        // Slightly bigger gap, perform smooth entry
+        p6_queue_travel(halfPuckLengthInSteps, halfPuckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0);
+        p6_queue_travel(800 * 0.20, 800, REVERSE_SPEED * 0.20, REVERSE_SPEED, 0);
+        p6_queue_travel(800, 800 * 0.20, REVERSE_SPEED, REVERSE_SPEED * 0.20, 0);
+    } else {
+        // Take the piss
 
-            // Turn 45 degrees left
-            p6_queue_travel(0, 300, 0, REVERSE_SPEED, 1.5);
+        // Turn 45 degrees left
+        p6_queue_travel(0, 300, 0, REVERSE_SPEED, 1.5);
 
-            // Travel backwards
-            p6_queue_travel(850, 850, REVERSE_SPEED, REVERSE_SPEED, 0.5);
+        // Travel backwards
+        p6_queue_travel(850, 850, REVERSE_SPEED, REVERSE_SPEED, 0.5);
 
-            // Turn 45 degrees left
-            p6_queue_travel(300, 0, REVERSE_SPEED, 0, 1.5);
-            
-            // Travel closer to the wall again
-            p6_queue_travel(500, 500, FORWARD_SPEED, FORWARD_SPEED, 0);
+        // Turn 45 degrees left
+        p6_queue_travel(300, 0, REVERSE_SPEED, 0, 1.5);
+
+        // Travel closer to the wall again
+        p6_queue_travel(500, 500, FORWARD_SPEED, FORWARD_SPEED, 0);
     }
 }
 
@@ -242,26 +245,41 @@ void p6_switch_led(float ledsOn) {
     }
 }
 
-bool p6_is_big_gap() {
+int p6_get_gap_size(int gapStart) {
+    int currentGapSize = p6_get_steps();
+    int gapSize = currentGapSize - gapStart;
+
+    return gapSize;
+}
+
+int p6_is_big_gap() {
     // Potential problem here, attempting to get steps while in a while loop
     // Is there a function we can call to set the steps moved?
     int gapStart = p6_get_steps();
-    int MINIMUM_GAP_SIZE = 1750;
-    
+    int puckLengthInSteps = p6_get_puck_length_in_steps();
+    int MINIMUM_GAP_SIZE = puckLengthInSteps * 2;
+    int MAXIMUM_GAP_SIZE = puckLengthInSteps * 5;
+
     while (1) {
         bool isEndOfGap = !p6_is_gap();
         
         if (isEndOfGap) {
-            return false;
+            return -1;
         }
         
-        int currentGapSize = p6_get_steps();
-        int gapSize = currentGapSize - gapStart;
+        int gapSize = p6_get_gap_size(gapStart);
 
         p6_switch_led(((float) gapSize / (float) MINIMUM_GAP_SIZE) * 8);
         
         if (gapSize >= MINIMUM_GAP_SIZE) {
-            return true;
+            
+            // Keep going to the MAXIMUM_GAP_SIZE, since we can do a more fancy
+            // parking movement based on how much room we've got
+            while (p6_is_gap() && gapSize < MAXIMUM_GAP_SIZE) {
+                gapSize = p6_get_gap_size(gapStart);
+            }
+            
+            return gapSize;
         }
     }
 }
@@ -326,13 +344,12 @@ void p6_run(void) {
 
         // If it's the start of an opening
         if (isGap) {
-            bool isBigGap = p6_is_big_gap();
+            int bigGapSize = p6_is_big_gap();
 
             // Stop if it's a big enough gap to fit the ePuck
-            if (isBigGap) {
+            if (bigGapSize > -1) {
                 p6_switch_led(8);
-                p6_stop();
-                p6_parallel_park(0);
+                p6_parallel_park(bigGapSize);
                 break;
             }
         } else {
