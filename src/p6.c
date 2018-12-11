@@ -19,7 +19,7 @@ typedef int bool;
 #define false 0
 
 // Maximum amount of actions in the queuing system
-#define MAX 8
+#define MAX 11
 
 
 int WHEEL_DIAMETER_CM = 4;
@@ -63,9 +63,9 @@ int distanceDeltaRight = 0;
 bool isMovingForwards = true;
 
 // Odd index stores left distance/speed, even stores right
-int travelDistanceArray[MAX * 2] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
-int travelSpeedArray[MAX * 2] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
-float travelDelayArray[MAX] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+int travelDistanceArray[MAX * 2] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+int travelSpeedArray[MAX * 2] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+float travelDelayArray[MAX] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 int currentTravelDistanceIndex = 0;
 
 bool isFinishedTraveling = false;
@@ -303,7 +303,21 @@ void p6_parallel_park(int gapSize, int IRIndex) {
         p6_queue_travel(300, 0, REVERSE_SPEED, 0, 1.5, shouldFlipDirection);
 
         // Travel closer to the wall again
-        p6_queue_travel(250, 250, FORWARD_SPEED, FORWARD_SPEED, 0, shouldFlipDirection);
+        p6_queue_travel(250, 250, FORWARD_SPEED, FORWARD_SPEED, 1.5, shouldFlipDirection);
+
+        // -- AND OUT AGAIN --
+
+        // Turn 45 degrees left
+        p6_queue_travel(300, 0, FORWARD_SPEED, 0, 1.5, shouldFlipDirection);
+
+        // Travel backwards
+        p6_queue_travel(850, 850, FORWARD_SPEED, FORWARD_SPEED, 0.5, shouldFlipDirection);
+
+        // Turn 45 degrees left
+        p6_queue_travel(0, 300, 0, FORWARD_SPEED, 1.5, shouldFlipDirection);
+
+        // Move backwards an e-puck length
+        p6_queue_travel(1000, 1000, FORWARD_SPEED, FORWARD_SPEED, 5, shouldFlipDirection);
     }
 }
 
