@@ -37,6 +37,10 @@ void p6_set_speed(int speed, int turn) {
 }
 
 #define MAX 6
+int WHEEL_DIAMETER_CM = 4;
+int E_PUCK_DIAMETER_CM = 7;
+int LEFT_IR_INDEX = 5;
+int RIGHT_IR_INDEX = 2;
 
 void p6_add_speed(int speedToAdd, int turnToAdd) {
     p6_set_speed(p6_current_speed.speed + speedToAdd, p6_current_speed.turn + turnToAdd);
@@ -68,17 +72,30 @@ int currentTravelDistanceIndex = 0;
 bool isFinishedTraveling = false;
 bool isTraveling = false;
 
-void p6_queue_travel(int distanceLeft, int distanceRight, int speedLeft, int speedRight, float delayAfter) {
+void p6_queue_travel(
+    int distanceLeft,
+    int distanceRight,
+    int speedLeft,
+    int speedRight,
+    float delayAfter,
+    bool shouldFlipDirection) {
     int i;
     
     // Find next non -1 entry and set it
     for (i = 0; i < MAX * 2; i += 2) {
         if (travelDistanceArray[i] == -1) {
-            travelDistanceArray[i] = distanceLeft;
-            travelDistanceArray[i + 1] = distanceRight;
-            travelSpeedArray[i] = speedLeft;
-            travelSpeedArray[i + 1] = speedRight;
-            travelDelayArray[i] = delayAfter;
+            
+            // Changes the direction of actions based on which IR sensor
+            // detected the gap
+            // shouldFlipDirection = false means perform as normal on the left side
+            int leftIndex = shouldFlipDirection ? i + 1 : i;
+            int rightIndex = shouldFlipDirection ? i : i + 1;
+            
+            travelDistanceArray[leftIndex] = distanceLeft;
+            travelDistanceArray[rightIndex] = distanceRight;
+            travelSpeedArray[leftIndex] = speedLeft;
+            travelSpeedArray[rightIndex] = speedRight;
+            travelDelayArray[leftIndex] = delayAfter;
             break;
         }
     }
@@ -155,54 +172,52 @@ void p6_travel_manager_agenda() {
 
 float p6_cm_to_steps(int cm) {
     float PI = 3.141592;
-    int WHEEL_DIAMETER_CM = 4;
     float steps = (cm * 1000) / PI / WHEEL_DIAMETER_CM;
 
     return steps;
 }
 
 float p6_get_puck_length_in_steps() {
-    int E_PUCK_DIAMETER_CM = 7;
     int puckLengthInSteps = p6_cm_to_steps(E_PUCK_DIAMETER_CM);
 
     return puckLengthInSteps;
 }
 
-
-void p6_parallel_park(int gapSize) {
+void p6_parallel_park(int gapSize, int IRIndex) {
     // TODO: Implement
     int FORWARD_SPEED = 1000;
     int REVERSE_SPEED = -FORWARD_SPEED;
     int puckLengthInSteps = p6_get_puck_length_in_steps();
     int halfPuckLengthInSteps = puckLengthInSteps / 2;
+    bool shouldFlipDirection = IRIndex == RIGHT_IR_INDEX;
 
-    p6_queue_travel(halfPuckLengthInSteps, halfPuckLengthInSteps, FORWARD_SPEED, FORWARD_SPEED, 1);
+    p6_queue_travel(halfPuckLengthInSteps, halfPuckLengthInSteps, FORWARD_SPEED, FORWARD_SPEED, 1, shouldFlipDirection);
 
     if (gapSize <= puckLengthInSteps * 3) {
         // Smaller gap, make e-puck go straight in with no "frills"
-        p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0);
-        p6_queue_travel(300, 300, FORWARD_SPEED, REVERSE_SPEED, 0);
-        p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0);
-        p6_queue_travel(300, 300, REVERSE_SPEED, FORWARD_SPEED, 0);
+        p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0, shouldFlipDirection);
+        p6_queue_travel(300, 300, FORWARD_SPEED, REVERSE_SPEED, 0, shouldFlipDirection);
+        p6_queue_travel(puckLengthInSteps, puckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0, shouldFlipDirection);
+        p6_queue_travel(300, 300, REVERSE_SPEED, FORWARD_SPEED, 0, shouldFlipDirection);
     } else if (gapSize <= puckLengthInSteps * 4) {
         // Slightly bigger gap, perform smooth entry
-        p6_queue_travel(halfPuckLengthInSteps, halfPuckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0);
-        p6_queue_travel(800 * 0.20, 800, REVERSE_SPEED * 0.20, REVERSE_SPEED, 0);
-        p6_queue_travel(800, 800 * 0.20, REVERSE_SPEED, REVERSE_SPEED * 0.20, 0);
+        p6_queue_travel(halfPuckLengthInSteps, halfPuckLengthInSteps, REVERSE_SPEED, REVERSE_SPEED, 0, shouldFlipDirection);
+        p6_queue_travel(800 * 0.20, 800, REVERSE_SPEED * 0.20, REVERSE_SPEED, 0, shouldFlipDirection);
+        p6_queue_travel(800, 800 * 0.20, REVERSE_SPEED, REVERSE_SPEED * 0.20, 0, shouldFlipDirection);
     } else {
         // Take the piss
 
         // Turn 45 degrees left
-        p6_queue_travel(0, 300, 0, REVERSE_SPEED, 1.5);
+        p6_queue_travel(0, 300, 0, REVERSE_SPEED, 1.5, shouldFlipDirection);
 
         // Travel backwards
-        p6_queue_travel(850, 850, REVERSE_SPEED, REVERSE_SPEED, 0.5);
+        p6_queue_travel(850, 850, REVERSE_SPEED, REVERSE_SPEED, 0.5, shouldFlipDirection);
 
         // Turn 45 degrees left
-        p6_queue_travel(300, 0, REVERSE_SPEED, 0, 1.5);
+        p6_queue_travel(300, 0, REVERSE_SPEED, 0, 1.5, shouldFlipDirection);
 
         // Travel closer to the wall again
-        p6_queue_travel(500, 500, FORWARD_SPEED, FORWARD_SPEED, 0);
+        p6_queue_travel(500, 500, FORWARD_SPEED, FORWARD_SPEED, 0, shouldFlipDirection);
     }
 }
 
@@ -226,8 +241,7 @@ int p6_get_confident_ir_reading(int IRIndex, int confidenceRequired) {
     return totalIRValue / confidenceRequired;
 }
 
-bool p6_is_gap() {
-    int IRIndex = 5;
+bool p6_is_gap(int IRIndex) {
     int CONFIDENCE_REQUIRED = 3;
     int DISTANCE_THRESHOLD = 95; // How far away we should consider "a gap"
     int IRReading = p6_get_confident_ir_reading(IRIndex, CONFIDENCE_REQUIRED);
@@ -235,6 +249,16 @@ bool p6_is_gap() {
     bool isBlocked = IRReading <= DISTANCE_THRESHOLD; // Blocked when IR closer to 0
 
     return !isBlocked;
+}
+
+int p6_get_gap_side() {
+    if (p6_is_gap(LEFT_IR_INDEX)) {
+        return LEFT_IR_INDEX;
+    } else if (p6_is_gap(RIGHT_IR_INDEX)) {
+        return RIGHT_IR_INDEX;
+    }
+    
+    return -1;
 }
 
 void p6_switch_led(float ledsOn) {
@@ -252,16 +276,14 @@ int p6_get_gap_size(int gapStart) {
     return gapSize;
 }
 
-int p6_is_big_gap() {
-    // Potential problem here, attempting to get steps while in a while loop
-    // Is there a function we can call to set the steps moved?
+int p6_is_big_gap(int IRIndex) {
     int gapStart = p6_get_steps();
     int puckLengthInSteps = p6_get_puck_length_in_steps();
     int MINIMUM_GAP_SIZE = puckLengthInSteps * 2;
     int MAXIMUM_GAP_SIZE = puckLengthInSteps * 5;
 
     while (1) {
-        bool isEndOfGap = !p6_is_gap();
+        bool isEndOfGap = !p6_is_gap(IRIndex);
         
         if (isEndOfGap) {
             return -1;
@@ -275,7 +297,7 @@ int p6_is_big_gap() {
             
             // Keep going to the MAXIMUM_GAP_SIZE, since we can do a more fancy
             // parking movement based on how much room we've got
-            while (p6_is_gap() && gapSize < MAXIMUM_GAP_SIZE) {
+            while (p6_is_gap(IRIndex) && gapSize < MAXIMUM_GAP_SIZE) {
                 gapSize = p6_get_gap_size(gapStart);
             }
             
@@ -340,16 +362,16 @@ void p6_run(void) {
     p6_switch_led(0);
 
     while (1) {
-        bool isGap = p6_is_gap();
+        int IRIndex = p6_get_gap_side();
 
         // If it's the start of an opening
-        if (isGap) {
-            int bigGapSize = p6_is_big_gap();
+        if (IRIndex != -1) {
+            int bigGapSize = p6_is_big_gap(IRIndex);
 
             // Stop if it's a big enough gap to fit the ePuck
             if (bigGapSize > -1) {
                 p6_switch_led(8);
-                p6_parallel_park(bigGapSize);
+                p6_parallel_park(bigGapSize, IRIndex);
                 break;
             }
         } else {
