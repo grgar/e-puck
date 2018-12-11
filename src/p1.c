@@ -85,12 +85,19 @@ p1_V p1_obstacle_avoid(p1_V v) {
     e_set_led(4, 0);
 
     v.speed = 0;
-    v.direction =
-            p1_ir.val[0] > p1_ir.val[7] ?
-            // Turn left
-            -1000 :
-            // Turn right
-            1000;
+    if (v.direction != 0) {
+        v.direction =
+                v.direction < 0
+                ? -1000
+                : 1000;
+    } else {
+        v.direction =
+                p1_ir.val[0] > p1_ir.val[7]
+                // Turn right
+                ? -1000
+                // Turn left
+                : 1000;
+    }
 
     return v;
 }

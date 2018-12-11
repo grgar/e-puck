@@ -32,7 +32,7 @@ int p5_speed = 500;
 
 //Planning functions
 //Calculate all current position metrics
-void compute_metrics() {
+void p5_compute_metrics() {
     //Get motor steps
     int stepsLlatest = e_get_steps_left();
     int stepsRlatest = -(e_get_steps_right());
@@ -85,8 +85,6 @@ void p5_set_goal(int x, int y) {
 
 //Move towards goal coordinates x and y
 p1_V p5_move_towards_goal() {
-    compute_metrics();
-
     //Convert radians to degrees
     p1_V v = {.speed = 500, .direction = ((g_angle - x_angle) * 180) / PI};
 
@@ -132,6 +130,7 @@ p1_V p5_move_towards_goal_smooth(p1_V v) {
 }
 
 void p5_move_towards_goal_run() {
+    p5_compute_metrics();
     p1_V v = p5_move_towards_goal();
     v = p5_move_towards_goal_smooth(v);
     e_set_speed(v.speed, v.direction);

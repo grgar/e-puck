@@ -16,7 +16,7 @@ p1_V v;
 void p10_goal_obstacle() {
     p1_V v_goal = p5_move_towards_goal();
     p1_V v_glsm = p5_move_towards_goal_smooth(v_goal);
-    p1_V v_obst = p1_obstacle(v_glsm);
+    p1_V v_obst = p1_obstacle(v_goal);
     
     //sprintf(msg, "v_goal: %i,%i, v_obst: %i,%i; ",
     //v_goal.speed, v_goal.direction, v_obst.speed, v_obst.direction);
@@ -78,10 +78,9 @@ void p10_run() {
 
     p5_set_goal(50, 50);
 
-    e_activate_agenda(p1_sense, 500);
-    //e_activate_agenda(p1_drive, 500);
-
-    e_activate_agenda(p10_goal_obstacle, 500);
+    e_activate_agenda(p1_sense, 600);
+    e_activate_agenda(p5_compute_metrics, 300);
+    e_activate_agenda(p10_goal_obstacle, 600);
     while (1) {
     }
 }
