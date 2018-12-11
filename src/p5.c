@@ -32,7 +32,7 @@ int p5_speed = 500;
 
 //Planning functions
 //Calculate all current position metrics
-void compute_metrics(){
+void compute_metrics() {
     //Get motor steps
     int stepsLlatest = e_get_steps_left();
     int stepsRlatest = -(e_get_steps_right());
@@ -41,27 +41,27 @@ void compute_metrics(){
     float distR = ((stepsRlatest - stepsR) / 1000.0) * (WHEEL_DIAMETER * PI);
     float total_dist = (distL + distR) / 2;
     float angle_adj = (distR - distL) / WHEEL_GAP;
-    
+
     //Adjust the angle of the e-puck with respect to the x axis
     x_angle = x_angle + angle_adj;
-    
+
     //Make sure the e-puck doesn't turn more than it needs to
-    if(x_angle > PI) {
+    if (x_angle > PI) {
         x_angle = x_angle - (2 * PI);
-    } else if(x_angle < -PI) {
+    } else if (x_angle < -PI) {
         x_angle = x_angle + (2 * PI);
     }
-    
+
     //Get the coordinates of the e-puck
     xaxis = xaxis + (total_dist * cos(x_angle));
     yaxis = yaxis + (total_dist * sin(x_angle));
-    
+
     //Get the angle of the goal with respect to the e-puck
-    g_angle = atanf((goalyaxis - yaxis)/ (goalxaxis - xaxis));
-    
+    g_angle = atanf((goalyaxis - yaxis) / (goalxaxis - xaxis));
+
     //Calculate the straight line distance between e-puck and the goal
     g_dist = sqrt(((goalxaxis - xaxis)*(goalxaxis - xaxis)) + ((goalyaxis - yaxis)*(goalxaxis - xaxis)));
-    
+
     //Re-calibrate steps
     stepsL = stepsLlatest;
     stepsR = stepsRlatest;
@@ -74,53 +74,62 @@ void p5_set_goal(int x, int y) {
 }
 
 //Move towards goal coordinates x and y
-p1_V p5_move_towards_goal() {  
+p1_V p5_move_towards_goal() {
     compute_metrics();
-    int angle = ((g_angle - x_angle) * 180) / PI;
-    int turn = 0;
-    int speed = 500;
-        
-    if(angle > 5){
-        turn = 25;
-        if(angle > 25){
-            turn = 350;
-            speed = 0;
-        }
-    }
-    
-    if(angle < -5){
-        turn = -25;
-        if(angle < -25){
-            turn = -350;
-            speed = 0;
-        }
-    }
-    
-    if(g_dist < 5){
+
+    p1_V v = {.speed = 500, .direction = ((g_angle - x_angle) * 180) / PI};
+
+    if (g_dist < 5) {
         int i;
-        for(i=0;i<8;i++){
-            e_set_led(i,1);
+        for (i = 0; i < 8; i++) {
+            e_set_led(i, 1);
         }
-        speed = 0;
-        turn = 0;
+        v.speed = 0;
+        v.direction = 0;
     }
     
-    p1_V v = {.speed = speed, .direction = turn};
+    return v;
+}
+
+p1_V p5_move_towards_goal_smooth(p1_V v) {
+    if (v.speed == 0 && v.direction == 0) {
+        return v;
+    }
+
+    int angle = v.direction;
+
+    if (angle > 5) {
+        v.direction = 25;
+        if (angle > 25) {
+            v.direction = 350;
+            v.speed = 0;
+        }
+    }
+
+    if (angle < -5) {
+        v.direction = -25;
+        if (angle < -25) {
+            v.direction = -350;
+            v.speed = 0;
+        }
+    }
+
     return v;
 }
 
 void p5_move_towards_goal_run() {
     p1_V v = p5_move_towards_goal();
+    v = p5_move_towards_goal_smooth(v);
     e_set_speed(v.speed, v.direction);
 }
 
 void p5_run() {
     e_set_steps_left(0);
     e_set_steps_right(0);
-       
+
     p5_set_goal(50, 50);
     e_activate_agenda(p5_move_towards_goal_run, 250);
-    
-    while(1) {
+
+    while (1) {
     }
 }
