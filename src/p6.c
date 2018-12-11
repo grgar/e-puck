@@ -7,10 +7,8 @@
 #include <motor_led/advance_one_timer/fast_agenda/e_led.h>
 #include <motor_led/advance_one_timer/fast_agenda/e_motors.h>
 #include <motor_led/advance_one_timer/fast_agenda/e_agenda_fast.h>
-#include <uart/e_uart_char.h>
 #include <camera/fast_2_timer/e_poxxxx.h>
 #include <a_d/advance_ad_scan/e_prox.h>
-#include <e_uart_char.h>
 
 #include "./common.h"
 #include "./p1.h"
@@ -228,7 +226,7 @@ int p6_get_confident_ir_reading(int IRIndex, int confidenceRequired) {
 bool p6_is_gap() {
     int IRIndex = 5;
     int CONFIDENCE_REQUIRED = 3;
-    int DISTANCE_THRESHOLD = 98; // How far away we should consider "a gap"
+    int DISTANCE_THRESHOLD = 95; // How far away we should consider "a gap"
     int IRReading = p6_get_confident_ir_reading(IRIndex, CONFIDENCE_REQUIRED);
 
     bool isBlocked = IRReading <= DISTANCE_THRESHOLD; // Blocked when IR closer to 0
@@ -236,17 +234,19 @@ bool p6_is_gap() {
     return !isBlocked;
 }
 
-void p6_switch_led(bool shouldToggleOn) {
+void p6_switch_led(float ledsOn) {
     int i;
 
     for (i = 0; i < 8; i++) {
-        e_set_led(i, shouldToggleOn ? 1 : 0);
+        e_set_led(i, i <= ledsOn ? 1 : 0);
     }
 }
 
 bool p6_is_big_gap() {
+    // Potential problem here, attempting to get steps while in a while loop
+    // Is there a function we can call to set the steps moved?
     int gapStart = p6_get_steps();
-    int MINIMUM_GAP_SIZE = 2000;
+    int MINIMUM_GAP_SIZE = 1750;
     
     while (1) {
         bool isEndOfGap = !p6_is_gap();
@@ -257,6 +257,8 @@ bool p6_is_big_gap() {
         
         int currentGapSize = p6_get_steps();
         int gapSize = currentGapSize - gapStart;
+
+        p6_switch_led(((float) gapSize / (float) MINIMUM_GAP_SIZE) * 8);
         
         if (gapSize >= MINIMUM_GAP_SIZE) {
             return true;
@@ -305,6 +307,7 @@ void p6_straighten_up(int lastKnownDistanceToWall) {
     }
 } 
 
+// NOTE: MUST start e-puck away from any boxes while it calibrates the IR sensors
 void p6_run(void) {
     // TODO: Find wall, use straighten up function, then continue
 
@@ -315,8 +318,7 @@ void p6_run(void) {
     // int lastKnownDistanceToWall = p6_get_confident_ir_reading(5, 3);
 
     p6_drive();
-    
-    
+
     p6_switch_led(0);
 
     while (1) {
@@ -328,7 +330,7 @@ void p6_run(void) {
 
             // Stop if it's a big enough gap to fit the ePuck
             if (isBigGap) {
-                p6_switch_led(1);
+                p6_switch_led(8);
                 p6_stop();
                 p6_parallel_park(0);
                 break;
@@ -341,7 +343,7 @@ void p6_run(void) {
         int steps = p6_get_steps();
 
         // If this is taking too long, stop anyway
-        if (steps > 5000) {
+        if (steps > 8000) {
             p6_stop();
             break;
         }
