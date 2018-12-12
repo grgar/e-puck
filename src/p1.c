@@ -7,9 +7,16 @@
 #include "common.h"
 #include "p1.h"
 
+/**
+ * IR values, see p1_IR
+ */
 p1_IR p1_ir = {.val =
     { 0}, .front = 0};
 
+/**
+ * Write calibrated normalised IR values to the given array.
+ * @param val array to write values in
+ */
 void p1_sense_ir(int val[8]) {
     int i;
     for (i = 0; i < 8; i++) {
@@ -17,6 +24,11 @@ void p1_sense_ir(int val[8]) {
     }
 }
 
+/**
+ * Perform sense calculations, removing sensor values which do not indicate
+ * a path which can be traversed, such as when sensors either side suggest
+ * the path is blocked. Calculate the front value as minimum of front IR.
+ */
 void p1_sense() {
     int val[8] = {0};
     p1_sense_ir(val);
@@ -33,13 +45,25 @@ void p1_sense() {
     p1_ir.front = min(p1_ir.val[0], p1_ir.val[7]);
 }
 
+/**
+ * Velocity of robot: speed and direction
+ */
 p1_V p1_v = {.speed = 0, .direction = 0};
 
+/**
+ * Set robot to drive at speed and normalised direction
+ */
 void p1_drive() {
     p1_v.direction = between(p1_v.direction, -1000, 1000);
     e_set_speed(p1_v.speed, p1_v.direction);
 }
 
+/**
+ * Cap maximum speed of robot when uncertainty of obstacle exists, such as
+ * changing lighting conditions
+ * @param v current velocity
+ * @return new velocity
+ */
 p1_V p1_obstacle_uncertainty(p1_V v) {
     // Current speed instead of passed in speed
     if (p1_v.speed >= 800) {
@@ -57,6 +81,12 @@ p1_V p1_obstacle_uncertainty(p1_V v) {
     return v;
 }
 
+/**
+ * Adjust velocity to avoid obstacles on the side of the robot which may become
+ * in the path of the robot in the future
+ * @param v current velocity
+ * @return new velocity
+ */
 p1_V p1_obstacle_adjust(p1_V v) {
     // Only adjust for side obstacles if:
     // robot not stationary, and
@@ -77,6 +107,11 @@ p1_V p1_obstacle_adjust(p1_V v) {
     return v;
 }
 
+/**
+ * Avoid obstacle in front of robot when front sensors are blocked
+ * @param v current velocity
+ * @return new velocity
+ */
 p1_V p1_obstacle_avoid(p1_V v) {
     if (p1_ir.front > 90) {
         e_set_led(4, 1);
@@ -102,6 +137,11 @@ p1_V p1_obstacle_avoid(p1_V v) {
     return v;
 }
 
+/**
+ * Turn around when surrounded by obstacles with no path currently spotted
+ * @param v current velocity
+ * @return new velocity
+ */
 p1_V p1_obstacle_surrounded(p1_V v) {
     // Check front and side sensors for collision
     int sum = 0;
@@ -121,8 +161,16 @@ p1_V p1_obstacle_surrounded(p1_V v) {
     return v;
 }
 
+/**
+ * Is startup phase completed?
+ */
 int p1_startup_complete = 0;
 
+/**
+ * Cap the rotational velocity of the robot on startup to prevent wheelspin
+ * @param v current velocity
+ * @return new velocity
+ */
 p1_V p1_startup_torque(p1_V v) {
     if (p1_startup_complete == 1) {
         return v;
@@ -136,6 +184,11 @@ p1_V p1_startup_torque(p1_V v) {
     return v;
 }
 
+/**
+ * Obstacle avoidance on intended velocity
+ * @param v current velocity
+ * @return new velocity
+ */
 p1_V p1_obstacle(p1_V v) {
     // Cap speed if detected uncertainty
     v = p1_obstacle_uncertainty(v);
@@ -155,6 +208,10 @@ p1_V p1_obstacle(p1_V v) {
     return v;
 }
 
+/**
+ * Perform obstacle avoidance with maximum initial velocity and
+ * directly set speed of robot as output
+ */
 void p1_obstacle_run() {
     p1_V v;
     v.speed = 1000;
@@ -162,6 +219,9 @@ void p1_obstacle_run() {
     p1_v = p1_obstacle(v);
 }
 
+/**
+ * Obstacle avoidance
+ */
 void p1_run() {
     e_activate_agenda(p1_sense, 500);
     e_activate_agenda(p1_drive, 500);

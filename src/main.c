@@ -27,13 +27,15 @@
 #include "p9.h"
 #include "p10.h"
 
+/**
+ * Run correct function in c file based on selector position
+ */
 void controller() {
     switch (getselector()) {
         case 0:
             break;
 
         case 1:
-            // Obstacle avoidance
             p1_run();
             break;
 
@@ -78,6 +80,10 @@ void controller() {
     }
 }
 
+/**
+ * Always light body LED on position 0
+ * to work out where position 0 is on selector
+ */
 void zero_position() {
     if (getselector() == 0) {
         e_set_body_led(1);
@@ -86,6 +92,9 @@ void zero_position() {
     }
 }
 
+/**
+ * Main functionality of robot
+ */
 int main(void) {
     // Begin by setting ports for other operations to access e-puck
     e_init_port();
@@ -101,12 +110,13 @@ int main(void) {
     // so unfortunately it's not possible to lateinit
     e_calibrate_ir();
 
-    // camera set up to take a 1 pixel image in the centre of the camera
+    // Camera set up
 	e_poxxxx_init_cam();
-	//This gets a 4x4 image at the center of the camera and samples it to a single pixel
+    // 1 pixel image in the centre of the camera
+	// Captured 4x4 image, sampled to a single pixel
 	e_poxxxx_config_cam((ARRAY_WIDTH - 4)/2,(ARRAY_HEIGHT - 4)/2,4,4,4,4,RGB_565_MODE);
 	e_poxxxx_set_mirror(1,1);
-	e_poxxxx_write_cam_registers(); 
+	e_poxxxx_write_cam_registers();
     
     // Configure timer 1, 2, 3 on e-puck
     e_configure_timer(0);
