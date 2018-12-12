@@ -20,6 +20,7 @@ typedef struct {
 
 extern p1_V p1_v;
 p1_V p1_obstacle(p1_V);
+void p1_obstacle_run();
 
 void p1_sense();
 void p1_drive();
