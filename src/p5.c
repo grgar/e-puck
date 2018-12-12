@@ -15,17 +15,17 @@
 #define PI 3.141592
 
 //goal metrics
-double goalxaxis = 0; //x and y axis of goal
-double goalyaxis = 0;
-double g_dist; //straight line distance from the e-puck to goal
-float g_angle; //angle of e-puck orientation compared goal
+float goalxaxis = 0; //x and y axis of goal
+float goalyaxis = 0;
+float g_dist; //straight line distance from the e-puck to goal
+double g_angle; //angle of e-puck orientation compared goal
 
 //e-puck metrics
-float xaxis = 0.0; //x and y axis of e-puck
-float yaxis = 0.0;
+double xaxis = 0.0; //x and y axis of e-puck
+double yaxis = 0.0;
 int stepsL; //Motor steps from left and right motor
 int stepsR;
-float x_angle = 0.0; //angle of e-puck orientation compared to the x axis
+double x_angle = 0.0; //angle of e-puck orientation compared to the x axis
 
 //Planning functions
 //Calculate all current position metrics
@@ -34,10 +34,10 @@ void p5_compute_metrics() {
     int stepsLlatest = e_get_steps_left();
     int stepsRlatest = -(e_get_steps_right());
     //Get motor distance
-    float distL = ((stepsLlatest - stepsL) / 1000.0) * (WHEEL_DIAMETER * PI);
-    float distR = ((stepsRlatest - stepsR) / 1000.0) * (WHEEL_DIAMETER * PI);
-    float total_dist = (distL + distR) / 2;
-    float angle_adj = (distR - distL) / WHEEL_GAP;
+    double distL = ((stepsLlatest - stepsL) / 1000.0) * (WHEEL_DIAMETER * PI);
+    double distR = ((stepsRlatest - stepsR) / 1000.0) * (WHEEL_DIAMETER * PI);
+    double total_dist = (distL + distR) / 2;
+    double angle_adj = (distR - distL) / WHEEL_GAP;
     
     //Re-calibrate steps
     stepsL = stepsLlatest;
@@ -58,8 +58,8 @@ void p5_compute_metrics() {
     yaxis += (total_dist * sin(x_angle));
     
     //The x and y difference of the e-puck to the goal
-    float xdiff = goalxaxis - xaxis;
-    float ydiff = goalyaxis - yaxis;
+    double xdiff = goalxaxis - xaxis;
+    double ydiff = goalyaxis - yaxis;
    
     //Get the angle of the goal with respect to the e-puck
     if(xdiff == 0){
@@ -76,7 +76,7 @@ void p5_compute_metrics() {
     }
     
     //Calculate the straight line distance between e-puck and the goal
-    g_dist = sqrt((xdiff * xdiff) + (ydiff * ydiff));
+    g_dist = sqrt( pow(xdiff, 2) + pow(ydiff, 2));
 }
 
 //Set goal coordinates
