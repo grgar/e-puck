@@ -1,12 +1,11 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
 #include <a_d/advance_ad_scan/e_prox.h>
 #include <a_d/advance_ad_scan/e_acc.h>
 #include <motor_led/advance_one_timer/fast_agenda/e_led.h>
 #include <motor_led/advance_one_timer/fast_agenda/e_motors.h>
 #include <motor_led/advance_one_timer/fast_agenda/e_agenda_fast.h>
-#include "camera/fast_2_timer/e_poxxxx.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include "common.h"
 
 #include "p1.h"
@@ -16,8 +15,8 @@
 #define PI 3.141592
 
 //goal metrics
-double goalxaxis; //x and y axis of goal
-double goalyaxis;
+double goalxaxis = 0; //x and y axis of goal
+double goalyaxis = 0;
 double g_dist; //straight line distance from the e-puck to goal
 float g_angle; //angle of e-puck orientation compared goal
 
@@ -27,8 +26,6 @@ float yaxis = 0.0;
 int stepsL; //Motor steps from left and right motor
 int stepsR;
 float x_angle = 0.0; //angle of e-puck orientation compared to the x axis
-
-int p5_speed = 500;
 
 //Planning functions
 //Calculate all current position metrics
@@ -57,17 +54,17 @@ void p5_compute_metrics() {
     }
 
     //Get the coordinates of the e-puck
-    xaxis = xaxis + (total_dist * cos(x_angle));
-    yaxis = yaxis + (total_dist * sin(x_angle));
+    xaxis += (total_dist * cos(x_angle));
+    yaxis += (total_dist * sin(x_angle));
     
     //The x and y difference of the e-puck to the goal
-    double xdiff = goalxaxis - xaxis;
-    double ydiff = goalyaxis - yaxis;
+    float xdiff = goalxaxis - xaxis;
+    float ydiff = goalyaxis - yaxis;
    
     //Get the angle of the goal with respect to the e-puck
     if(xdiff == 0){
         g_angle = PI/2;
-    }else{
+    }else{ //Must not divide by zero as arctan(infinite) should be 90 degrees
         g_angle = atanf(ydiff/ xdiff);
     }
 
@@ -145,7 +142,7 @@ void p5_run() {
     e_set_steps_left(0);
     e_set_steps_right(0);
 
-    p5_set_goal(50, 50);
+    p5_set_goal(25, 25);
     e_activate_agenda(p5_move_towards_goal_run, 500);
 
     while (1) {
