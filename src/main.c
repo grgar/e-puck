@@ -25,6 +25,7 @@
 #include "p7.h"
 #include "p8.h"
 #include "p9.h"
+#include "p10.h"
 
 void controller() {
     switch (getselector()) {
@@ -66,6 +67,10 @@ void controller() {
 
         case 9:
             p9_run();
+            break;
+        
+        case 10:
+            p10_run();
             break;
 
         default:

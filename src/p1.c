@@ -7,14 +7,6 @@
 #include "common.h"
 #include "p1.h"
 
-typedef struct {
-    /**
-     * IR percentages, 100% clear, 0% blocked
-     */
-    int val[8];
-    int front;
-} p1_IR;
-
 p1_IR p1_ir = {.val =
     { 0}, .front = 0};
 
@@ -44,6 +36,7 @@ void p1_sense() {
 p1_V p1_v = {.speed = 0, .direction = 0};
 
 void p1_drive() {
+    p1_v.direction = between(p1_v.direction, -1000, 1000);
     e_set_speed(p1_v.speed, p1_v.direction);
 }
 
@@ -72,12 +65,14 @@ p1_V p1_obstacle_adjust(p1_V v) {
             min(
             min(p1_ir.val[1], p1_ir.val[2]),
             min(p1_ir.val[5], p1_ir.val[6])
-            ) > 80) {
+            ) > 90) {
         return v;
     }
-    int ir_right = 100 - p1_ir.val[1] + (100 - p1_ir.val[2]) * 0.5;
-    int ir_left = 100 - p1_ir.val[6] + (100 - p1_ir.val[5]) * 0.5;
-    v.direction = ir_right - ir_left;
+    int ir_left = (p1_ir.val[6] * 0.5) + p1_ir.val[5];
+    int ir_right = (p1_ir.val[1] * 0.5) + p1_ir.val[2];
+    v.direction = ir_left < ir_right
+            ? (100 - p1_ir.val[6])
+            : (100 - p1_ir.val[1]);
     v.speed = between(abs(v.direction) * -1 + 200, 350, 600);
     return v;
 }
@@ -90,12 +85,19 @@ p1_V p1_obstacle_avoid(p1_V v) {
     e_set_led(4, 0);
 
     v.speed = 0;
-    v.direction =
-            p1_ir.val[0] > p1_ir.val[7] ?
-            // Turn left
-            -1000 :
-            // Turn right
-            1000;
+    if (v.direction != 0) {
+        v.direction =
+                v.direction < 0
+                ? -1000
+                : 1000;
+    } else {
+        v.direction =
+                p1_ir.val[0] > p1_ir.val[7]
+                // Turn right
+                ? -1000
+                // Turn left
+                : 1000;
+    }
 
     return v;
 }
