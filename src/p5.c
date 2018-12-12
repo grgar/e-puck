@@ -65,7 +65,11 @@ void p5_compute_metrics() {
     double ydiff = goalyaxis - yaxis;
    
     //Get the angle of the goal with respect to the e-puck
-    g_angle = atanf(ydiff/ xdiff);
+    if(xdiff == 0){
+        g_angle = PI/2;
+    }else{
+        g_angle = atanf(ydiff/ xdiff);
+    }
 
     //Incase goal is in bottom left quadrant
     if(xdiff < 0 && ydiff < 0){
